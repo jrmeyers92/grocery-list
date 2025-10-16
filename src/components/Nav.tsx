@@ -8,7 +8,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { SignedIn, SignedOut, SignOutButton, UserButton } from "@clerk/nextjs";
-import { Gem, Heart, Home, Menu, Search } from "lucide-react";
+import { Apple, Heart, Home, Menu } from "lucide-react";
 import Link from "next/link";
 import * as React from "react";
 import { buttonVariants } from "./ui/button";
@@ -22,8 +22,8 @@ const Nav = () => {
           href="/"
           className="flex gap-2 items-center text-xl font-bold justify-center"
         >
-          <Gem className="text-primary" size={28} />
-          <span>APP NAME</span>
+          <Apple className="text-primary" size={28} />
+          <span>Grocery List</span>
         </Link>
 
         {/* Desktop Navigation */}
@@ -60,13 +60,6 @@ const Nav = () => {
 
         {/* Mobile Navigation */}
         <div className="md:hidden flex items-center gap-2">
-          <Link
-            href="/search"
-            className={buttonVariants({ variant: "ghost", size: "icon" })}
-          >
-            <Search size={20} />
-          </Link>
-
           <SignedIn>
             <Link
               href="/favorites"
@@ -84,9 +77,9 @@ const Nav = () => {
             </SheetTrigger>
             <SheetContent>
               <SheetHeader>
-                <SheetTitle>STL Wedding Hub</SheetTitle>
+                <SheetTitle>Grocery List</SheetTitle>
                 <SheetDescription>
-                  Find wedding professionals in St. Louis
+                  To make grocery shopping a little less painful
                 </SheetDescription>
               </SheetHeader>
               <div className="flex flex-col gap-4 py-4">
