@@ -27,20 +27,23 @@ const Nav = () => {
         </Link>
 
         {/* Desktop Navigation */}
-        <div className="hidden md:flex items-center gap-6">
+        <div className="hidden md:flex items-center gap-4">
           {/* Auth Buttons */}
           <SignedIn>
-            <div className="flex items-center gap-4">
-              <Link
-                href="/favorites"
-                className={buttonVariants({ variant: "ghost", size: "icon" })}
-                title="Favorites"
-              >
-                <Heart size={20} />
-              </Link>
+            <Link
+              href="/recipes"
+              className={buttonVariants({ variant: "ghost" })}
+            >
+              Recipes
+            </Link>
 
-              <UserButton afterSignOutUrl="/" />
-            </div>
+            <Link
+              href="/shopping-list"
+              className={buttonVariants({ variant: "ghost" })}
+            >
+              Shopping List
+            </Link>
+            <UserButton afterSignOutUrl="/" />
           </SignedIn>
 
           <SignedOut>
@@ -62,10 +65,17 @@ const Nav = () => {
         <div className="md:hidden flex items-center gap-2">
           <SignedIn>
             <Link
-              href="/favorites"
+              href="/recipes"
               className={buttonVariants({ variant: "ghost", size: "icon" })}
             >
-              <Heart size={20} />
+              Recipes
+            </Link>
+
+            <Link
+              href="/shopping-list"
+              className={buttonVariants({ variant: "ghost", size: "icon" })}
+            >
+              Shopping List
             </Link>
           </SignedIn>
 

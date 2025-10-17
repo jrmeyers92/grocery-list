@@ -1,6 +1,6 @@
 "use client";
 
-import { createRecipe } from "@/actions/recipe/create-recipe";
+import { updateRecipe } from "@/actions/recipe/update-recipe";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -25,6 +25,7 @@ import {
   createRecipeClientSchema,
   type CreateRecipeClientInput,
 } from "@/lib/validation/recipe";
+import type { RecipeWithIngredients } from "@/types/database.types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2, Plus, Upload, X } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -71,26 +72,41 @@ const ACCEPTED_IMAGE_TYPES = [
   "image/gif",
 ];
 
-export default function CreateRecipeForm() {
+interface EditRecipeFormProps {
+  recipe: RecipeWithIngredients;
+}
+
+export default function EditRecipeForm({ recipe }: EditRecipeFormProps) {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(
+    recipe.image_url || null
+  );
 
   const form = useForm<CreateRecipeClientInput>({
     resolver: zodResolver(createRecipeClientSchema),
     defaultValues: {
-      title: "",
-      description: "",
-      servings: 4,
-      prep_time: undefined,
-      cook_time: undefined,
+      title: recipe.title,
+      description: recipe.description || "",
+      servings: recipe.servings || 4,
+      prep_time: recipe.prep_time || undefined,
+      cook_time: recipe.cook_time || undefined,
       recipeImage: null,
-      tags: [],
-      is_favorite: false,
-      ingredients: [
-        { name_raw: "", quantity: 1, unit: "unit", aisle: "other", notes: "" },
-      ],
-      steps: [{ step_number: 1, instruction: "" }],
+      tags: recipe.tags || [],
+      is_favorite: recipe.is_favorite || false,
+      ingredients:
+        recipe.grocerylist_recipe_ingredients.map((ing) => ({
+          name_raw: ing.name_raw,
+          quantity: ing.quantity,
+          unit: ing.unit,
+          aisle: ing.aisle || "other",
+          notes: ing.notes || "",
+        })) || [],
+      steps:
+        recipe.grocerylist_recipe_steps.map((step) => ({
+          step_number: step.step_number,
+          instruction: step.instruction,
+        })) || [],
     },
   });
 
@@ -147,7 +163,7 @@ export default function CreateRecipeForm() {
   const onSubmit = async (data: CreateRecipeClientInput) => {
     setIsSubmitting(true);
     try {
-      const result = await createRecipe(data);
+      const result = await updateRecipe(recipe.id, data);
 
       if (!result.success) {
         toast.error("Error", {
@@ -155,9 +171,9 @@ export default function CreateRecipeForm() {
         });
       } else {
         toast.success("Success", {
-          description: "Recipe created successfully!",
+          description: "Recipe updated successfully!",
         });
-        router.push("/recipes");
+        router.push(`/recipes/${recipe.id}`);
       }
     } catch (error) {
       console.error(error);
@@ -172,10 +188,8 @@ export default function CreateRecipeForm() {
   return (
     <div className="max-w-4xl mx-auto py-8 px-4">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold">Create New Recipe</h1>
-        <p className="text-muted-foreground mt-2">
-          Add a new recipe to your collection
-        </p>
+        <h1 className="text-3xl font-bold">Edit Recipe</h1>
+        <p className="text-muted-foreground mt-2">Update your recipe details</p>
       </div>
 
       <Form {...form}>
@@ -299,7 +313,9 @@ export default function CreateRecipeForm() {
               control={form.control}
               name="recipeImage"
               /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
-              render={({ field: { value, onChange, ...fieldProps } }) => (
+              render={({
+                field: { value: _value, onChange: _onChange, ...fieldProps },
+              }) => (
                 <FormItem>
                   <FormLabel>Recipe Image</FormLabel>
                   <FormControl>
@@ -350,7 +366,7 @@ export default function CreateRecipeForm() {
                     </div>
                   </FormControl>
                   <FormDescription>
-                    Upload a photo of your recipe (optional)
+                    Upload a new photo or keep the existing one
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
@@ -594,7 +610,7 @@ export default function CreateRecipeForm() {
             <Button
               type="button"
               variant="outline"
-              onClick={() => router.push("/recipes")}
+              onClick={() => router.push(`/recipes/${recipe.id}`)}
               disabled={isSubmitting}
               className="flex-1"
             >
@@ -604,10 +620,10 @@ export default function CreateRecipeForm() {
               {isSubmitting ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Creating...
+                  Updating...
                 </>
               ) : (
-                "Create Recipe"
+                "Update Recipe"
               )}
             </Button>
           </div>

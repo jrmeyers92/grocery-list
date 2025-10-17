@@ -50,7 +50,7 @@ export default clerkMiddleware(async (auth, req) => {
   }
 
   // Get auth info for protected routes
-  const { userId, sessionClaims } = await auth();
+  const { userId } = await auth();
 
   // If not authenticated and trying to access protected route
   if (!userId && !isPublicRoute(req)) {

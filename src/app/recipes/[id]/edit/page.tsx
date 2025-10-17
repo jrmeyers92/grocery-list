@@ -1,7 +1,4 @@
-import { default as RecipeHeader } from "@/components/recipe/RecipeHeader";
-import RecipeInfo from "@/components/recipe/RecipeInfo";
-import RecipeIngredients from "@/components/recipe/RecipeIngredients";
-import RecipeSteps from "@/components/recipe/RecipeSteps";
+import EditRecipeForm from "@/components/forms/EditRecipeForm";
 import { createAdminClient } from "@/lib/supabase/clients/admin";
 import type {
   Ingredient,
@@ -11,21 +8,18 @@ import type {
 import { auth } from "@clerk/nextjs/server";
 import { notFound, redirect } from "next/navigation";
 
-interface RecipePageProps {
-  params: Promise<{
+interface EditRecipePageProps {
+  params: {
     id: string;
-  }>;
+  };
 }
 
-export default async function page({ params }: RecipePageProps) {
+export default async function page({ params }: EditRecipePageProps) {
   const { userId } = await auth();
 
   if (!userId) {
     redirect("/sign-in");
   }
-
-  // Await params before using
-  const { id } = await params;
 
   const supabase = await createAdminClient();
 
@@ -39,7 +33,7 @@ export default async function page({ params }: RecipePageProps) {
       grocerylist_recipe_steps(*)
     `
     )
-    .eq("id", id)
+    .eq("id", params.id)
     .eq("owner_id", userId)
     .single();
 
@@ -65,20 +59,5 @@ export default async function page({ params }: RecipePageProps) {
     grocerylist_recipe_steps: steps,
   };
 
-  return (
-    <div className="container mx-auto py-8 px-4 max-w-5xl">
-      <RecipeHeader recipe={recipeData} />
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-8">
-        <div className="lg:col-span-2 space-y-8">
-          <RecipeInfo recipe={recipeData} />
-          <RecipeSteps steps={steps} />
-        </div>
-
-        <div className="lg:col-span-1">
-          <RecipeIngredients ingredients={ingredients} />
-        </div>
-      </div>
-    </div>
-  );
+  return <EditRecipeForm recipe={recipeData} />;
 }
