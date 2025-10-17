@@ -2,10 +2,17 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
+import { RecipeWithIngredients } from "@/types/database.types";
 import { useMemo, useState } from "react";
 
+// Define the shape of a shopping list recipe item
+interface ShoppingListRecipe {
+  recipe: RecipeWithIngredients; // Changed from Recipe to RecipeWithIngredients
+  serving_multiplier: number;
+}
+
 interface GroceryListProps {
-  recipes: any[];
+  recipes: ShoppingListRecipe[];
 }
 
 interface CombinedIngredient {
@@ -14,6 +21,15 @@ interface CombinedIngredient {
   unit: string;
   aisle: string;
   notes: string[];
+}
+
+// Also type the ingredient properly to avoid 'any'
+interface RecipeIngredient {
+  name_raw: string;
+  quantity: number;
+  unit: string;
+  aisle: string | null;
+  notes: string | null;
 }
 
 export default function GroceryList({ recipes }: GroceryListProps) {
@@ -39,25 +55,27 @@ export default function GroceryList({ recipes }: GroceryListProps) {
       const recipe = item.recipe;
       const multiplier = item.serving_multiplier || 1;
 
-      recipe.grocerylist_recipe_ingredients?.forEach((ing: any) => {
-        const key = `${ing.name_raw.toLowerCase()}-${ing.unit}`;
-        const existing = ingredientMap.get(key);
+      recipe.grocerylist_recipe_ingredients?.forEach(
+        (ing: RecipeIngredient) => {
+          const key = `${ing.name_raw.toLowerCase()}-${ing.unit}`;
+          const existing = ingredientMap.get(key);
 
-        if (existing) {
-          existing.totalQuantity += ing.quantity * multiplier;
-          if (ing.notes && !existing.notes.includes(ing.notes)) {
-            existing.notes.push(ing.notes);
+          if (existing) {
+            existing.totalQuantity += ing.quantity * multiplier;
+            if (ing.notes && !existing.notes.includes(ing.notes)) {
+              existing.notes.push(ing.notes);
+            }
+          } else {
+            ingredientMap.set(key, {
+              name: ing.name_raw,
+              totalQuantity: ing.quantity * multiplier,
+              unit: ing.unit,
+              aisle: ing.aisle || "other",
+              notes: ing.notes ? [ing.notes] : [],
+            });
           }
-        } else {
-          ingredientMap.set(key, {
-            name: ing.name_raw,
-            totalQuantity: ing.quantity * multiplier,
-            unit: ing.unit,
-            aisle: ing.aisle || "other",
-            notes: ing.notes ? [ing.notes] : [],
-          });
         }
-      });
+      );
     });
 
     // Group by aisle

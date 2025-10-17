@@ -4,7 +4,7 @@ import {
   clearShoppingList,
   renameShoppingList,
   startNewShoppingList,
-} from "@/actions/shopping-list/manage-shopping-list";
+} from "@/actions/shopping-list/manage-list";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -58,6 +58,7 @@ export default function ShoppingListHeader({
         setIsRenameOpen(false);
       }
     } catch (error) {
+      console.error(error);
       toast.error("Error", { description: "Failed to rename list" });
     } finally {
       setIsLoading(false);
@@ -81,6 +82,7 @@ export default function ShoppingListHeader({
         toast.success("Success", { description: result.message });
       }
     } catch (error) {
+      console.error(error);
       toast.error("Error", { description: "Failed to clear list" });
     } finally {
       setIsLoading(false);
@@ -106,6 +108,7 @@ export default function ShoppingListHeader({
         toast.success("Success", { description: result.message });
       }
     } catch (error) {
+      console.error(error);
       toast.error("Error", { description: "Failed to start new list" });
     } finally {
       setIsLoading(false);

@@ -4,7 +4,7 @@ import { toggleFavorite } from "@/actions/recipe/toggle-favorite";
 import {
   addToShoppingList,
   removeFromShoppingList,
-} from "@/actions/shopping-list/add-to-shopping-list";
+} from "@/actions/shopping-list/recipes";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {

@@ -3,7 +3,7 @@
 import {
   removeFromShoppingList,
   updateServingMultiplier,
-} from "@/actions/shopping-list/add-to-shopping-list";
+} from "@/actions/shopping-list/recipes";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -43,6 +43,7 @@ export default function ShoppingListRecipes({
         });
       }
     } catch (error) {
+      console.error(error);
       toast.error("Error", { description: "Failed to remove recipe" });
     }
   };
@@ -65,6 +66,7 @@ export default function ShoppingListRecipes({
         toast.success("Updated", { description: "Serving size updated" });
       }
     } catch (error) {
+      console.error(error);
       toast.error("Error", { description: "Failed to update serving size" });
     }
   };

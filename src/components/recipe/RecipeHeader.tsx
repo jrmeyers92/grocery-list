@@ -4,7 +4,7 @@ import { deleteRecipe } from "@/actions/recipe/delete-recipe";
 import {
   addToShoppingList,
   removeFromShoppingList,
-} from "@/actions/shopping-list/add-to-shopping-list";
+} from "@/actions/shopping-list/recipes";
 import { Button } from "@/components/ui/button";
 import { RecipeWithIngredients } from "@/types/database.types";
 import { ArrowLeft, Check, Edit, Heart, Plus, Trash2 } from "lucide-react";
