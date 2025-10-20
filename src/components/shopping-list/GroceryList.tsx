@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/select";
 import { RecipeWithIngredients } from "@/types/database.types";
 import { Plus, X } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 
 interface ShoppingListRecipe {
@@ -35,6 +35,7 @@ interface CustomItem {
 }
 
 interface GroceryListProps {
+  listId: string;
   recipes: ShoppingListRecipe[];
   customItems?: CustomItem[];
 }
@@ -88,9 +89,11 @@ const UNITS = [
 ];
 
 export default function GroceryList({
+  listId,
   recipes,
   customItems = [],
 }: GroceryListProps) {
+  // Start with empty set to avoid hydration mismatch
   const [checkedItems, setCheckedItems] = useState<Set<string>>(new Set());
   const [showAddForm, setShowAddForm] = useState(false);
   const [isAdding, setIsAdding] = useState(false);
@@ -101,6 +104,20 @@ export default function GroceryList({
     aisle: "other",
   });
 
+  // Load checked items from localStorage after mount (client-side only)
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem(`checkedItems-${listId}`);
+      if (stored) {
+        const parsed = new Set(JSON.parse(stored));
+        setCheckedItems(parsed);
+      }
+    } catch (error) {
+      console.error("Error loading checked items:", error);
+    }
+  }, [listId]);
+
+  // Save checked items to localStorage whenever they change
   const toggleIngredient = (key: string) => {
     setCheckedItems((prev) => {
       const newSet = new Set(prev);
@@ -109,6 +126,17 @@ export default function GroceryList({
       } else {
         newSet.add(key);
       }
+
+      // Save to localStorage
+      try {
+        localStorage.setItem(
+          `checkedItems-${listId}`,
+          JSON.stringify(Array.from(newSet))
+        );
+      } catch (error) {
+        console.error("Error saving checked items:", error);
+      }
+
       return newSet;
     });
   };

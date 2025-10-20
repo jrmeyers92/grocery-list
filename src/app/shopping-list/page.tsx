@@ -139,11 +139,15 @@ export default async function page() {
         </div>
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-8">
-          <div className="lg:col-span-2">
+          <div className="lg:col-span-2 order-2 lg:order-1">
             <ShoppingListRecipes recipes={recipes} />
           </div>
-          <div className="lg:col-span-1">
-            <GroceryList recipes={recipes} customItems={customItems || []} />
+          <div className="lg:col-span-1 order-1 lg:order-2">
+            <GroceryList
+              listId={activeList.id}
+              recipes={recipes}
+              customItems={customItems || []}
+            />
           </div>
         </div>
       )}
