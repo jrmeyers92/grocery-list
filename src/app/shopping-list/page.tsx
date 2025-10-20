@@ -99,6 +99,14 @@ export default async function page() {
     .eq("menu_id", activeList.id)
     .eq("owner_id", userId);
 
+  // Fetch custom items for this shopping list
+  const { data: customItems } = await supabase
+    .from("grocerylist_shoppinglist_items")
+    .select("id, name, quantity, unit, aisle, notes")
+    .eq("menu_id", activeList.id)
+    .eq("owner_id", userId)
+    .order("created_at", { ascending: true });
+
   // Filter out any items where recipe is null and extract recipe from array
   const recipes = (shoppingListRecipes || [])
     .filter((item) => item.recipe != null)
@@ -123,7 +131,7 @@ export default async function page() {
         recipeCount={recipes.length}
       />
 
-      {recipes.length === 0 ? (
+      {recipes.length === 0 && (!customItems || customItems.length === 0) ? (
         <div className="text-center py-12">
           <p className="text-muted-foreground text-lg">
             Your shopping list is empty. Add some recipes to get started!
@@ -135,7 +143,7 @@ export default async function page() {
             <ShoppingListRecipes recipes={recipes} />
           </div>
           <div className="lg:col-span-1">
-            <GroceryList recipes={recipes} />
+            <GroceryList recipes={recipes} customItems={customItems || []} />
           </div>
         </div>
       )}
