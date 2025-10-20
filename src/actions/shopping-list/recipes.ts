@@ -42,12 +42,15 @@ export async function addToShoppingList(
     const supabase = await createAdminClient();
 
     // 3. Get or create active shopping list
-    let { data: activeList, error: listError } = await supabase
+    let activeList: { id: string } | null = null;
+    const { data: listData } = await supabase
       .from("grocerylist_shoppinglist")
       .select("id")
       .eq("owner_id", userId)
       .eq("is_active", true)
       .single();
+
+    activeList = listData;
 
     // If no active list exists, create one
     if (!activeList) {

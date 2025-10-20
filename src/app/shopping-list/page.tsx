@@ -6,16 +6,6 @@ import { RecipeWithIngredients } from "@/types/database.types";
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 
-// Type for the Supabase response (recipe is a single object, not array)
-type SupabaseShoppingListRecipe = {
-  id: string;
-  serving_multiplier: number;
-  added_at: string;
-  menu_id: string;
-  recipe_id: string;
-  recipe: RecipeWithIngredients; // Single object, not array!
-};
-
 export default async function page() {
   const { userId } = await auth();
 
@@ -109,15 +99,21 @@ export default async function page() {
     .eq("menu_id", activeList.id)
     .eq("owner_id", userId);
 
-  // Filter out any items where recipe is null
+  // Filter out any items where recipe is null and extract recipe from array
   const recipes = (shoppingListRecipes || [])
-    .filter((item): item is SupabaseShoppingListRecipe => item.recipe != null)
-    .map((item) => ({
-      id: item.id,
-      serving_multiplier: item.serving_multiplier,
-      added_at: item.added_at,
-      recipe: item.recipe, // Already a single object, no need to extract [0]
-    }));
+    .filter((item) => item.recipe != null)
+    .map((item) => {
+      // Supabase returns recipe as an array when using foreign key syntax
+      const recipe = Array.isArray(item.recipe) ? item.recipe[0] : item.recipe;
+
+      return {
+        id: item.id,
+        serving_multiplier: item.serving_multiplier,
+        added_at: item.added_at,
+        recipe: recipe as RecipeWithIngredients,
+      };
+    })
+    .filter((item) => item.recipe != null); // Filter again in case array was empty
 
   return (
     <div className="container mx-auto py-8 px-4 max-w-7xl">

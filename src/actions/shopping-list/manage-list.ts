@@ -11,7 +11,7 @@ import { revalidatePath } from "next/cache";
 
 type ShoppingListResponse =
   | { success: false; error: string; details?: unknown }
-  | { success: true; message: string; data?: any };
+  | { success: true; message: string; data?: Record<string, unknown> };
 
 /**
  * Archives the current active list and creates a new one

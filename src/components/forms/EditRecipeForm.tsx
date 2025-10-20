@@ -312,10 +312,7 @@ export default function EditRecipeForm({ recipe }: EditRecipeFormProps) {
             <FormField
               control={form.control}
               name="recipeImage"
-              /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
-              render={({
-                field: { value: _value, onChange: _onChange, ...fieldProps },
-              }) => (
+              render={({ field: { value, onChange, ...fieldProps } }) => (
                 <FormItem>
                   <FormLabel>Recipe Image</FormLabel>
                   <FormControl>

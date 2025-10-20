@@ -8,7 +8,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { SignedIn, SignedOut, SignOutButton, UserButton } from "@clerk/nextjs";
-import { Apple, Heart, Home, Menu } from "lucide-react";
+import { Apple, Home, Menu } from "lucide-react";
 import Link from "next/link";
 import * as React from "react";
 import { buttonVariants } from "./ui/button";

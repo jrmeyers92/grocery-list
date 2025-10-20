@@ -13,8 +13,17 @@ import Link from "next/link";
 import { useState } from "react";
 import { toast } from "sonner";
 
+import { RecipeWithIngredients } from "@/types/database.types";
+
+interface ShoppingListRecipe {
+  id: string;
+  recipe: RecipeWithIngredients;
+  serving_multiplier: number;
+  added_at: string;
+}
+
 interface ShoppingListRecipesProps {
-  recipes: any[];
+  recipes: ShoppingListRecipe[];
 }
 
 export default function ShoppingListRecipes({
@@ -22,7 +31,7 @@ export default function ShoppingListRecipes({
 }: ShoppingListRecipesProps) {
   const [localRecipes, setLocalRecipes] = useState(recipes);
   const [servingInputs, setServingInputs] = useState<Record<string, number>>(
-    recipes.reduce((acc, item) => {
+    recipes.reduce<Record<string, number>>((acc, item) => {
       acc[item.recipe.id] = item.serving_multiplier;
       return acc;
     }, {})

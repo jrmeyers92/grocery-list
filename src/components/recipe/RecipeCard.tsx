@@ -48,7 +48,7 @@ export default function RecipeCard({
         toast.error("Error", {
           description: result.error,
         });
-      } else {
+      } else if (result.data) {
         setIsFavorite(result.data.isFavorite);
         toast.success(result.message);
       }
