@@ -76,6 +76,7 @@ export default function CreateRecipeForm() {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [tagsInput, setTagsInput] = useState("");
 
   const form = useForm<CreateRecipeClientInput>({
     resolver: zodResolver(createRecipeClientSchema),
@@ -385,6 +386,33 @@ export default function CreateRecipeForm() {
                       Add this recipe to your favorites
                     </FormDescription>
                   </div>
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="tags"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Tags</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="e.g., dinner, quick, healthy (comma-separated)"
+                      value={tagsInput}
+                      onChange={(e) => setTagsInput(e.target.value)}
+                      onBlur={() => {
+                        const tagsArray = tagsInput
+                          .split(",")
+                          .map((tag) => tag.trim())
+                          .filter((tag) => tag.length > 0);
+                        field.onChange(tagsArray);
+                      }}
+                    />
+                  </FormControl>
+                  <FormDescription>
+                    Add tags to categorize your recipe (separate with commas)
+                  </FormDescription>
+                  <FormMessage />
                 </FormItem>
               )}
             />

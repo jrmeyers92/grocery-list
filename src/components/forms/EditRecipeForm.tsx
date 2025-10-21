@@ -82,6 +82,7 @@ export default function EditRecipeForm({ recipe }: EditRecipeFormProps) {
   const [imagePreview, setImagePreview] = useState<string | null>(
     recipe.image_url || null
   );
+  const [tagsInput, setTagsInput] = useState(recipe.tags?.join(", ") || "");
 
   const form = useForm<CreateRecipeClientInput>({
     resolver: zodResolver(createRecipeClientSchema),
@@ -387,6 +388,33 @@ export default function EditRecipeForm({ recipe }: EditRecipeFormProps) {
                       Add this recipe to your favorites
                     </FormDescription>
                   </div>
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="tags"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Tags</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="e.g., dinner, quick, healthy (comma-separated)"
+                      value={tagsInput}
+                      onChange={(e) => setTagsInput(e.target.value)}
+                      onBlur={() => {
+                        const tagsArray = tagsInput
+                          .split(",")
+                          .map((tag) => tag.trim())
+                          .filter((tag) => tag.length > 0);
+                        field.onChange(tagsArray);
+                      }}
+                    />
+                  </FormControl>
+                  <FormDescription>
+                    Add tags to categorize your recipe (separate with commas)
+                  </FormDescription>
+                  <FormMessage />
                 </FormItem>
               )}
             />
