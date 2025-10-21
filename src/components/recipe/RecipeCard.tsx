@@ -173,7 +173,7 @@ export default function RecipeCard({
 
   return (
     <>
-      <Card className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer group">
+      <Card className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer group flex flex-col h-full">
         <Link href={`/recipes/${recipe.id}`}>
           <CardHeader className="p-0 relative">
             {recipe.image_url ? (
@@ -186,7 +186,7 @@ export default function RecipeCard({
                 />
               </div>
             ) : (
-              <div className="w-full h-48  bg-linear-to-br from-gray-100 to-gray-200 flex items-center justify-center">
+              <div className="w-full h-48 bg-linear-to-br from-gray-100 to-gray-200 flex items-center justify-center">
                 <span className="text-4xl">🍽️</span>
               </div>
             )}
@@ -206,20 +206,23 @@ export default function RecipeCard({
           </CardHeader>
         </Link>
 
-        <CardContent className="p-4">
+        <CardContent className="p-4 flex-1 flex flex-col">
           <Link href={`/recipes/${recipe.id}`}>
             <h3 className="font-semibold text-lg mb-2 line-clamp-1 group-hover:text-primary transition-colors">
               {recipe.title}
             </h3>
           </Link>
 
-          {recipe.description && (
-            <p className="text-sm text-muted-foreground line-clamp-2 mb-3">
-              {recipe.description}
-            </p>
-          )}
+          {/* Fixed height description area */}
+          <div className="h-10 mb-3">
+            {recipe.description && (
+              <p className="text-sm text-muted-foreground line-clamp-2">
+                {recipe.description}
+              </p>
+            )}
+          </div>
 
-          <div className="flex items-center gap-4 text-sm text-muted-foreground">
+          <div className="flex items-center gap-4 text-sm text-muted-foreground mb-3">
             {recipe.servings && (
               <div className="flex items-center gap-1">
                 <Users className="w-4 h-4" />
@@ -234,23 +237,26 @@ export default function RecipeCard({
             )}
           </div>
 
-          {recipe.tags && recipe.tags.length > 0 && (
-            <div className="flex flex-wrap gap-1 mt-3">
-              {recipe.tags.slice(0, 3).map((tag: string) => (
-                <Badge key={tag} variant="secondary" className="text-xs">
-                  {tag}
-                </Badge>
-              ))}
-              {recipe.tags.length > 3 && (
-                <Badge variant="secondary" className="text-xs">
-                  +{recipe.tags.length - 3}
-                </Badge>
-              )}
-            </div>
-          )}
+          {/* Fixed height tags area */}
+          <div className="h-8 mt-auto">
+            {recipe.tags && recipe.tags.length > 0 && (
+              <div className="flex flex-wrap gap-1">
+                {recipe.tags.slice(0, 3).map((tag: string) => (
+                  <Badge key={tag} variant="secondary" className="text-xs">
+                    {tag}
+                  </Badge>
+                ))}
+                {recipe.tags.length > 3 && (
+                  <Badge variant="secondary" className="text-xs">
+                    +{recipe.tags.length - 3}
+                  </Badge>
+                )}
+              </div>
+            )}
+          </div>
         </CardContent>
 
-        <CardFooter className="p-4 pt-0 flex gap-2">
+        <CardFooter className="p-4 pt-0 flex gap-2 mt-auto">
           <Button
             variant="outline"
             size="sm"
@@ -316,8 +322,8 @@ export default function RecipeCard({
           <AlertDialogHeader>
             <AlertDialogTitle>Delete Recipe</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete "{recipe.title}"? This action
-              cannot be undone.
+              Are you sure you want to delete &quot;{recipe.title}&quot;? This
+              action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
