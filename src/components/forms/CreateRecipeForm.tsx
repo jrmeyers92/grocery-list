@@ -31,6 +31,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { toast } from "sonner";
+import RecipeImporter from "../RecipeImporter";
 
 const INGREDIENT_UNITS = [
   "unit",
@@ -94,23 +95,28 @@ export default function CreateRecipeForm() {
     },
   });
 
+  const ingredientFieldArray = useFieldArray({
+    control: form.control,
+    name: "ingredients",
+  });
+
+  const stepFieldArray = useFieldArray({
+    control: form.control,
+    name: "steps",
+  });
+
+  // Destructure for convenience in the rest of the component
   const {
     fields: ingredientFields,
     append: appendIngredient,
     remove: removeIngredient,
-  } = useFieldArray({
-    control: form.control,
-    name: "ingredients",
-  });
+  } = ingredientFieldArray;
 
   const {
     fields: stepFields,
     append: appendStep,
     remove: removeStep,
-  } = useFieldArray({
-    control: form.control,
-    name: "steps",
-  });
+  } = stepFieldArray;
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -171,11 +177,16 @@ export default function CreateRecipeForm() {
 
   return (
     <div className="max-w-4xl mx-auto py-8 px-4">
-      <div className="mb-8">
+      <div className="mb-8 flex items-center justify-between">
         <h1 className="text-3xl font-bold">Create New Recipe</h1>
         <p className="text-muted-foreground mt-2">
           Add a new recipe to your collection
         </p>
+        <RecipeImporter
+          form={form}
+          ingredientFieldArray={ingredientFieldArray}
+          stepFieldArray={stepFieldArray}
+        />
       </div>
 
       <Form {...form}>

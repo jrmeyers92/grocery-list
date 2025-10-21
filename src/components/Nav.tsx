@@ -43,6 +43,12 @@ const Nav = () => {
             >
               Shopping List
             </Link>
+            <Link
+              href="/recipes/create"
+              className={buttonVariants({ variant: "ghost" })}
+            >
+              Create Recipe
+            </Link>
             <UserButton afterSignOutUrl="/" />
           </SignedIn>
 
