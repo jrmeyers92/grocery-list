@@ -125,8 +125,8 @@ export default function RecipeImporter({
         <DialogHeader>
           <DialogTitle>Import Recipe from Text</DialogTitle>
           <DialogDescription>
-            Paste a recipe from any source and we'll automatically extract the
-            ingredients and instructions.
+            Paste a recipe from any source and we&apos;ll automatically extract
+            the ingredients and instructions.
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-4">

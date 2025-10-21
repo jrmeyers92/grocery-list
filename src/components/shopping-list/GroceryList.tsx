@@ -109,8 +109,8 @@ export default function GroceryList({
     try {
       const stored = localStorage.getItem(`checkedItems-${listId}`);
       if (stored) {
-        const parsed = new Set(JSON.parse(stored));
-        setCheckedItems(parsed);
+        const parsed = JSON.parse(stored) as string[];
+        setCheckedItems(new Set(parsed));
       }
     } catch (error) {
       console.error("Error loading checked items:", error);
