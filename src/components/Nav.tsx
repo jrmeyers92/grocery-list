@@ -69,22 +69,6 @@ const Nav = () => {
 
         {/* Mobile Navigation */}
         <div className="md:hidden flex items-center gap-2">
-          <SignedIn>
-            <Link
-              href="/recipes"
-              className={buttonVariants({ variant: "ghost", size: "icon" })}
-            >
-              Recipes
-            </Link>
-
-            <Link
-              href="/shopping-list"
-              className={buttonVariants({ variant: "ghost", size: "icon" })}
-            >
-              Shopping List
-            </Link>
-          </SignedIn>
-
           <Sheet>
             <SheetTrigger
               className={buttonVariants({ variant: "outline", size: "icon" })}
@@ -114,8 +98,27 @@ const Nav = () => {
                 <SignedIn>
                   <div className="flex flex-col gap-3">
                     <SheetClose asChild>
-                      <Link href="/dashboard" className={buttonVariants()}>
-                        Dashboard
+                      <Link
+                        href="/recipes"
+                        className={buttonVariants({ variant: "ghost" })}
+                      >
+                        Recipes
+                      </Link>
+                    </SheetClose>
+                    <SheetClose asChild>
+                      <Link
+                        href="/shopping-list"
+                        className={buttonVariants({ variant: "ghost" })}
+                      >
+                        Shopping List
+                      </Link>
+                    </SheetClose>
+                    <SheetClose asChild>
+                      <Link
+                        href="/recipes/create"
+                        className={buttonVariants({ variant: "ghost" })}
+                      >
+                        Create Recipe
                       </Link>
                     </SheetClose>
                     <SheetClose asChild>
