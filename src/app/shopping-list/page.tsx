@@ -1,6 +1,6 @@
 import GroceryList from "@/components/shopping-list/GroceryList";
 import ShoppingListHeader from "@/components/shopping-list/ShoppingListHeader";
-import ShoppingListRecipes from "@/components/shopping-list/ShoppingListRecipes";
+import ShoppingListWrapper from "@/components/shopping-list/ShoppingListWrapper";
 import { createAdminClient } from "@/lib/supabase/clients/admin";
 import { RecipeWithIngredients } from "@/types/database.types";
 import { auth } from "@clerk/nextjs/server";
@@ -138,18 +138,11 @@ export default async function page() {
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-8">
-          <div className="lg:col-span-2 order-2 lg:order-1">
-            <ShoppingListRecipes recipes={recipes} />
-          </div>
-          <div className="lg:col-span-1 order-1 lg:order-2">
-            <GroceryList
-              listId={activeList.id}
-              recipes={recipes}
-              customItems={customItems || []}
-            />
-          </div>
-        </div>
+        <ShoppingListWrapper
+          listId={activeList.id}
+          initialRecipes={recipes}
+          customItems={customItems || []}
+        />
       )}
     </div>
   );

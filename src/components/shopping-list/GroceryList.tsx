@@ -21,8 +21,10 @@ import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 
 interface ShoppingListRecipe {
+  id: string;
   recipe: RecipeWithIngredients;
   serving_multiplier: number;
+  added_at: string;
 }
 
 interface CustomItem {

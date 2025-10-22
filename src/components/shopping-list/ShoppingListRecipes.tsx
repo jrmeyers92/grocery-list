@@ -24,12 +24,13 @@ interface ShoppingListRecipe {
 
 interface ShoppingListRecipesProps {
   recipes: ShoppingListRecipe[];
+  onRecipesChange: (recipes: ShoppingListRecipe[]) => void;
 }
 
 export default function ShoppingListRecipes({
   recipes,
+  onRecipesChange,
 }: ShoppingListRecipesProps) {
-  const [localRecipes, setLocalRecipes] = useState(recipes);
   const [servingInputs, setServingInputs] = useState<Record<string, number>>(
     recipes.reduce<Record<string, number>>((acc, item) => {
       acc[item.recipe.id] = item.serving_multiplier;
@@ -38,20 +39,25 @@ export default function ShoppingListRecipes({
   );
 
   const handleRemove = async (recipeId: string, recipeName: string) => {
+    // Optimistic update
+    const previousRecipes = recipes;
+    onRecipesChange(recipes.filter((item) => item.recipe.id !== recipeId));
+
     try {
       const result = await removeFromShoppingList(recipeId);
 
       if (!result.success) {
+        // Rollback on error
+        onRecipesChange(previousRecipes);
         toast.error("Error", { description: result.error });
       } else {
-        setLocalRecipes((prev) =>
-          prev.filter((item) => item.recipe.id !== recipeId)
-        );
         toast.success("Removed", {
           description: `${recipeName} removed from list`,
         });
       }
     } catch (error) {
+      // Rollback on error
+      onRecipesChange(previousRecipes);
       console.error(error);
       toast.error("Error", { description: "Failed to remove recipe" });
     }
@@ -65,16 +71,30 @@ export default function ShoppingListRecipes({
       return;
     }
 
+    // Optimistic update - update parent state immediately
+    const previousRecipes = recipes;
+    onRecipesChange(
+      recipes.map((item) =>
+        item.recipe.id === recipeId
+          ? { ...item, serving_multiplier: newMultiplier }
+          : item
+      )
+    );
+
     try {
       const result = await updateServingMultiplier(recipeId, newMultiplier);
 
       if (!result.success) {
+        // Rollback on error
+        onRecipesChange(previousRecipes);
         toast.error("Error", { description: result.error });
       } else {
         setServingInputs((prev) => ({ ...prev, [recipeId]: newMultiplier }));
         toast.success("Updated", { description: "Serving size updated" });
       }
     } catch (error) {
+      // Rollback on error
+      onRecipesChange(previousRecipes);
       console.error(error);
       toast.error("Error", { description: "Failed to update serving size" });
     }
@@ -85,7 +105,7 @@ export default function ShoppingListRecipes({
       <CardContent className="p-6">
         <h2 className="text-xl font-semibold mb-4">Recipes</h2>
         <div className="space-y-4">
-          {localRecipes.map((item) => {
+          {recipes.map((item) => {
             const recipe = item.recipe;
             const originalServings = recipe.servings || 4;
             const multiplier =
@@ -147,8 +167,18 @@ export default function ShoppingListRecipes({
                       }}
                       onBlur={(e) => {
                         const value = parseFloat(e.target.value);
-                        if (value !== multiplier) {
+                        if (value !== item.serving_multiplier && value > 0) {
                           handleServingChange(recipe.id, value);
+                        }
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          const value = parseFloat(
+                            (e.target as HTMLInputElement).value
+                          );
+                          if (value !== item.serving_multiplier && value > 0) {
+                            handleServingChange(recipe.id, value);
+                          }
                         }
                       }}
                       className="w-20 h-8"
