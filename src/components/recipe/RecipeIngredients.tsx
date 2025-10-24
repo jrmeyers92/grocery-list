@@ -77,7 +77,6 @@ export default function RecipeIngredients({
                         </span>
                       )}
                     </label>
-                    av
                   </div>
                 );
               })}

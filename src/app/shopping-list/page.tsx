@@ -43,6 +43,7 @@ export default async function page() {
           listId={newList?.id || ""}
           title={newList?.title || "My Shopping List"}
           recipeCount={0}
+          pastLists={[]}
         />
         <div className="text-center py-12">
           <p className="text-muted-foreground text-lg">
@@ -52,6 +53,35 @@ export default async function page() {
       </div>
     );
   }
+
+  // Fetch past (inactive) lists with recipe counts
+  const { data: pastLists } = await supabase
+    .from("grocerylist_shoppinglist")
+    .select(
+      `
+      id,
+      title,
+      created_at,
+      updated_at,
+      grocerylist_shoppinglist_recipes(count)
+    `
+    )
+    .eq("owner_id", userId)
+    .eq("is_active", false)
+    .order("updated_at", { ascending: false })
+    .limit(20);
+
+  // Transform past lists to include recipe count
+  const formattedPastLists =
+    pastLists?.map((list) => ({
+      id: list.id,
+      title: list.title,
+      created_at: list.created_at,
+      updated_at: list.updated_at,
+      recipe_count: Array.isArray(list.grocerylist_shoppinglist_recipes)
+        ? list.grocerylist_shoppinglist_recipes[0]?.count || 0
+        : 0,
+    })) || [];
 
   // Fetch recipes for this shopping list
   const { data: shoppingListRecipes } = await supabase
@@ -111,7 +141,6 @@ export default async function page() {
   const recipes = (shoppingListRecipes || [])
     .filter((item) => item.recipe != null)
     .map((item) => {
-      // Supabase returns recipe as an array when using foreign key syntax
       const recipe = Array.isArray(item.recipe) ? item.recipe[0] : item.recipe;
 
       return {
@@ -121,7 +150,7 @@ export default async function page() {
         recipe: recipe as RecipeWithIngredients,
       };
     })
-    .filter((item) => item.recipe != null); // Filter again in case array was empty
+    .filter((item) => item.recipe != null);
 
   return (
     <div className="container mx-auto py-8 px-4 max-w-7xl">
@@ -129,6 +158,7 @@ export default async function page() {
         listId={activeList.id}
         title={activeList.title}
         recipeCount={recipes.length}
+        pastLists={formattedPastLists}
       />
 
       {recipes.length === 0 && (!customItems || customItems.length === 0) ? (

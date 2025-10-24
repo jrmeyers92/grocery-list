@@ -26,16 +26,25 @@ import { Label } from "@/components/ui/label";
 import { Edit, MoreVertical, Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
+import PastListsDialog from "./PastListsDialog";
 
 interface ShoppingListHeaderProps {
   listId: string;
   title: string;
   recipeCount: number;
+  pastLists?: Array<{
+    id: string;
+    title: string;
+    created_at: string;
+    updated_at: string;
+    recipe_count: number;
+  }>;
 }
 
 export default function ShoppingListHeader({
   title,
   recipeCount,
+  pastLists = [],
 }: ShoppingListHeaderProps) {
   const [isRenameOpen, setIsRenameOpen] = useState(false);
   const [newTitle, setNewTitle] = useState(title);
@@ -125,31 +134,35 @@ export default function ShoppingListHeader({
           </p>
         </div>
 
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" size="icon" disabled={isLoading}>
-              <MoreVertical className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={() => setIsRenameOpen(true)}>
-              <Edit className="mr-2 h-4 w-4" />
-              Rename List
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              onClick={handleClear}
-              disabled={recipeCount === 0}
-            >
-              <Trash2 className="mr-2 h-4 w-4" />
-              Clear All Recipes
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={handleStartNew}>
-              <Plus className="mr-2 h-4 w-4" />
-              Start New List
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <div className="flex items-center gap-2">
+          <PastListsDialog pastLists={pastLists} />
+
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="icon" disabled={isLoading}>
+                <MoreVertical className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => setIsRenameOpen(true)}>
+                <Edit className="mr-2 h-4 w-4" />
+                Rename List
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={handleClear}
+                disabled={recipeCount === 0}
+              >
+                <Trash2 className="mr-2 h-4 w-4" />
+                Clear All Recipes
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={handleStartNew}>
+                <Plus className="mr-2 h-4 w-4" />
+                Start New List
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       </div>
 
       <Dialog open={isRenameOpen} onOpenChange={setIsRenameOpen}>
