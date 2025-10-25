@@ -5,8 +5,15 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 import { Recipe } from "@/types/database.types";
-import { Plus, X } from "lucide-react";
+import { Filter, Plus, X } from "lucide-react";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 
@@ -21,6 +28,7 @@ export default function RecipesPageClient({
 }: RecipesPageClientProps) {
   const [selectedTags, setSelectedTags] = useState<Set<string>>(new Set());
   const [showFavorites, setShowFavorites] = useState(false);
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
 
   // Extract all unique tags from recipes
   const allTags = useMemo(() => {
@@ -83,17 +91,81 @@ export default function RecipesPageClient({
 
   const hasActiveFilters = selectedTags.size > 0 || showFavorites;
 
+  // Filter Sidebar Component (reusable for both desktop and mobile)
+  const FilterContent = () => (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <h2 className="font-semibold text-lg">Filters</h2>
+        {hasActiveFilters && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={clearFilters}
+            className="h-8 text-xs"
+          >
+            Clear all
+          </Button>
+        )}
+      </div>
+
+      {/* Favorites Filter */}
+      <div className="space-y-3">
+        <h3 className="font-medium text-sm">Quick Filters</h3>
+        <div className="flex items-center space-x-2">
+          <Checkbox
+            id="favorites"
+            checked={showFavorites}
+            onCheckedChange={(checked) => setShowFavorites(checked as boolean)}
+          />
+          <Label
+            htmlFor="favorites"
+            className="text-sm font-normal cursor-pointer"
+          >
+            Favorites only
+          </Label>
+        </div>
+      </div>
+
+      {/* Tags Filter */}
+      {allTags.length > 0 && (
+        <div className="space-y-3">
+          <h3 className="font-medium text-sm">Tags ({allTags.length})</h3>
+          <div className="space-y-2 max-h-96 overflow-y-auto">
+            {allTags.map((tag) => (
+              <div key={tag} className="flex items-center space-x-2">
+                <Checkbox
+                  id={`tag-${tag}`}
+                  checked={selectedTags.has(tag)}
+                  onCheckedChange={() => toggleTag(tag)}
+                />
+                <Label
+                  htmlFor={`tag-${tag}`}
+                  className="text-sm font-normal cursor-pointer flex-1 flex items-center justify-between"
+                >
+                  <span>{tag}</span>
+                  <span className="text-xs text-muted-foreground">
+                    {tagCounts[tag]}
+                  </span>
+                </Label>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+
   return (
-    <div className="container mx-auto py-8 px-4">
-      <div className="flex items-center justify-between mb-8">
+    <div className="container mx-auto py-4 sm:py-8 px-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 sm:mb-8">
         <div>
-          <h1 className="text-3xl font-bold">My Recipes</h1>
-          <p className="text-muted-foreground mt-2">
+          <h1 className="text-2xl sm:text-3xl font-bold">My Recipes</h1>
+          <p className="text-muted-foreground mt-1 sm:mt-2 text-sm sm:text-base">
             Manage your recipe collection
           </p>
         </div>
         <Link href="/recipes/create">
-          <Button>
+          <Button className="w-full sm:w-auto">
             <Plus className="w-4 h-4 mr-2" />
             New Recipe
           </Button>
@@ -102,12 +174,14 @@ export default function RecipesPageClient({
 
       {!recipes || recipes.length === 0 ? (
         <div className="text-center py-12">
-          <h2 className="text-2xl font-semibold mb-4">No recipes yet</h2>
-          <p className="text-muted-foreground mb-6">
+          <h2 className="text-xl sm:text-2xl font-semibold mb-4">
+            No recipes yet
+          </h2>
+          <p className="text-muted-foreground mb-6 text-sm sm:text-base">
             Start building your recipe collection
           </p>
           <Link href="/recipes/create">
-            <Button>
+            <Button className="w-full sm:w-auto">
               <Plus className="w-4 h-4 mr-2" />
               Create Your First Recipe
             </Button>
@@ -115,115 +189,117 @@ export default function RecipesPageClient({
         </div>
       ) : (
         <div className="flex gap-8">
-          {/* Left Sidebar - Filters */}
-          <aside className="w-64 shrink-0">
-            <div className="sticky top-8 space-y-6">
-              <div className="flex items-center justify-between">
-                <h2 className="font-semibold text-lg">Filters</h2>
-                {hasActiveFilters && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={clearFilters}
-                    className="h-8 text-xs"
-                  >
-                    Clear all
-                  </Button>
-                )}
-              </div>
-
-              {/* Favorites Filter */}
-              <div className="space-y-3">
-                <h3 className="font-medium text-sm">Quick Filters</h3>
-                <div className="flex items-center space-x-2">
-                  <Checkbox
-                    id="favorites"
-                    checked={showFavorites}
-                    onCheckedChange={(checked) =>
-                      setShowFavorites(checked as boolean)
-                    }
-                  />
-                  <Label
-                    htmlFor="favorites"
-                    className="text-sm font-normal cursor-pointer"
-                  >
-                    Favorites only
-                  </Label>
-                </div>
-              </div>
-
-              {/* Tags Filter */}
-              {allTags.length > 0 && (
-                <div className="space-y-3">
-                  <h3 className="font-medium text-sm">
-                    Tags ({allTags.length})
-                  </h3>
-                  <div className="space-y-2 max-h-96 overflow-y-auto">
-                    {allTags.map((tag) => (
-                      <div key={tag} className="flex items-center space-x-2">
-                        <Checkbox
-                          id={`tag-${tag}`}
-                          checked={selectedTags.has(tag)}
-                          onCheckedChange={() => toggleTag(tag)}
-                        />
-                        <Label
-                          htmlFor={`tag-${tag}`}
-                          className="text-sm font-normal cursor-pointer flex-1 flex items-center justify-between"
-                        >
-                          <span>{tag}</span>
-                          <span className="text-xs text-muted-foreground">
-                            {tagCounts[tag]}
-                          </span>
-                        </Label>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
+          {/* Desktop Sidebar - Hidden on mobile */}
+          <aside className="hidden lg:block w-64 shrink-0">
+            <div className="sticky top-8">
+              <FilterContent />
             </div>
           </aside>
 
-          {/* Main Content - Recipe Grid */}
-          <div className="flex-1">
-            {/* Active Filters Display */}
-            {hasActiveFilters && (
-              <div className="mb-6 flex items-center gap-2 flex-wrap">
-                <span className="text-sm text-muted-foreground">
-                  Active filters:
-                </span>
-                {showFavorites && (
-                  <Badge variant="secondary" className="gap-1">
-                    Favorites
-                    <X
-                      className="w-3 h-3 cursor-pointer"
-                      onClick={() => setShowFavorites(false)}
-                    />
-                  </Badge>
-                )}
-                {Array.from(selectedTags).map((tag) => (
-                  <Badge key={tag} variant="secondary" className="gap-1">
-                    {tag}
-                    <X
-                      className="w-3 h-3 cursor-pointer"
-                      onClick={() => toggleTag(tag)}
-                    />
-                  </Badge>
-                ))}
-              </div>
-            )}
+          {/* Main Content */}
+          <div className="flex-1 min-w-0">
+            {/* Mobile Filter Button and Active Filters */}
+            <div className="lg:hidden mb-4 space-y-4">
+              <div className="flex items-center justify-between gap-2">
+                <Sheet open={isFilterOpen} onOpenChange={setIsFilterOpen}>
+                  <SheetTrigger asChild>
+                    <Button variant="outline" size="sm" className="relative">
+                      <Filter className="w-4 h-4 mr-2" />
+                      Filters
+                      {hasActiveFilters && (
+                        <span className="absolute -top-1 -right-1 w-5 h-5 bg-primary text-primary-foreground text-xs rounded-full flex items-center justify-center">
+                          {selectedTags.size + (showFavorites ? 1 : 0)}
+                        </span>
+                      )}
+                    </Button>
+                  </SheetTrigger>
+                  <SheetContent side="left" className="w-[300px] sm:w-[400px]">
+                    <SheetHeader>
+                      <SheetTitle>Filters</SheetTitle>
+                    </SheetHeader>
+                    <div className="mt-6">
+                      <FilterContent />
+                    </div>
+                  </SheetContent>
+                </Sheet>
 
-            {/* Results Count */}
-            <p className="text-sm text-muted-foreground mb-4">
-              Showing {filteredRecipes.length} of {recipes.length} recipes
-            </p>
+                <p className="text-xs sm:text-sm text-muted-foreground">
+                  {filteredRecipes.length} of {recipes.length}
+                </p>
+              </div>
+
+              {/* Active Filters Display - Mobile */}
+              {hasActiveFilters && (
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="text-xs sm:text-sm text-muted-foreground">
+                    Active:
+                  </span>
+                  {showFavorites && (
+                    <Badge variant="secondary" className="gap-1 text-xs">
+                      Favorites
+                      <X
+                        className="w-3 h-3 cursor-pointer"
+                        onClick={() => setShowFavorites(false)}
+                      />
+                    </Badge>
+                  )}
+                  {Array.from(selectedTags).map((tag) => (
+                    <Badge
+                      key={tag}
+                      variant="secondary"
+                      className="gap-1 text-xs"
+                    >
+                      {tag}
+                      <X
+                        className="w-3 h-3 cursor-pointer"
+                        onClick={() => toggleTag(tag)}
+                      />
+                    </Badge>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Desktop Active Filters and Results Count */}
+            <div className="hidden lg:block mb-6 space-y-4">
+              {hasActiveFilters && (
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="text-sm text-muted-foreground">
+                    Active filters:
+                  </span>
+                  {showFavorites && (
+                    <Badge variant="secondary" className="gap-1">
+                      Favorites
+                      <X
+                        className="w-3 h-3 cursor-pointer"
+                        onClick={() => setShowFavorites(false)}
+                      />
+                    </Badge>
+                  )}
+                  {Array.from(selectedTags).map((tag) => (
+                    <Badge key={tag} variant="secondary" className="gap-1">
+                      {tag}
+                      <X
+                        className="w-3 h-3 cursor-pointer"
+                        onClick={() => toggleTag(tag)}
+                      />
+                    </Badge>
+                  ))}
+                </div>
+              )}
+
+              <p className="text-sm text-muted-foreground">
+                Showing {filteredRecipes.length} of {recipes.length} recipes
+              </p>
+            </div>
 
             {/* Recipe Grid */}
             {filteredRecipes.length === 0 ? (
               <div className="text-center py-12">
-                <h2 className="text-xl font-semibold mb-2">
+                <h2 className="text-lg sm:text-xl font-semibold mb-2">
                   No recipes match your filters
                 </h2>
-                <p className="text-muted-foreground mb-4">
+                <p className="text-muted-foreground mb-4 text-sm sm:text-base">
                   Try adjusting your filters or clear them to see all recipes
                 </p>
                 <Button variant="outline" onClick={clearFilters}>
@@ -231,7 +307,7 @@ export default function RecipesPageClient({
                 </Button>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6">
                 {filteredRecipes.map((recipe) => (
                   <RecipeCard
                     key={recipe.id}

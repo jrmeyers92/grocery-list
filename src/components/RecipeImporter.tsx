@@ -27,6 +27,8 @@ interface RecipeImporterProps {
   stepFieldArray: UseFieldArrayReturn<CreateRecipeClientInput, "steps", "id">;
 }
 
+const MAX_RECIPE_LENGTH = 8000;
+
 export default function RecipeImporter({
   form,
   ingredientFieldArray,
@@ -39,6 +41,13 @@ export default function RecipeImporter({
   const handleImport = async () => {
     if (!recipeText.trim()) {
       toast.error("Please paste a recipe");
+      return;
+    }
+
+    if (recipeText.length > MAX_RECIPE_LENGTH) {
+      toast.error("Recipe is too long", {
+        description: `Please limit your recipe to ${MAX_RECIPE_LENGTH.toLocaleString()} characters. Current length: ${recipeText.length.toLocaleString()}`,
+      });
       return;
     }
 
@@ -130,8 +139,9 @@ export default function RecipeImporter({
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-4">
-          <Textarea
-            placeholder="Paste your recipe here...
+          <div className="space-y-2">
+            <Textarea
+              placeholder="Paste your recipe here...
 
 Example:
 Chocolate Chip Cookies
@@ -147,10 +157,21 @@ Instructions:
 1. Preheat oven to 375°F
 2. Mix flour and baking soda in a bowl
 3. Cream butter and sugar together..."
-            className="min-h-[300px] max-h-[400px] font-mono text-sm resize-none overflow-y-auto"
-            value={recipeText}
-            onChange={(e) => setRecipeText(e.target.value)}
-          />
+              className="min-h-[300px] max-h-[400px] font-mono text-sm resize-none overflow-y-auto"
+              value={recipeText}
+              onChange={(e) => setRecipeText(e.target.value)}
+            />
+            <div className="text-xs text-muted-foreground text-right">
+              {recipeText.length.toLocaleString()} /{" "}
+              {MAX_RECIPE_LENGTH.toLocaleString()} characters
+              {recipeText.length > MAX_RECIPE_LENGTH && (
+                <span className="text-destructive ml-2">
+                  (exceeds limit by{" "}
+                  {(recipeText.length - MAX_RECIPE_LENGTH).toLocaleString()})
+                </span>
+              )}
+            </div>
+          </div>
           <div className="flex gap-2 justify-end">
             <Button
               type="button"

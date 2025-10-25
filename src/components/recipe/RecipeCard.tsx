@@ -177,7 +177,7 @@ export default function RecipeCard({
         <Link href={`/recipes/${recipe.id}`}>
           <CardHeader className="p-0 relative">
             {recipe.image_url ? (
-              <div className="relative w-full h-48">
+              <div className="relative w-full h-40 sm:h-48">
                 <Image
                   src={recipe.image_url}
                   alt={recipe.title}
@@ -186,17 +186,17 @@ export default function RecipeCard({
                 />
               </div>
             ) : (
-              <div className="w-full h-48 bg-linear-to-br from-gray-100 to-gray-200 flex items-center justify-center">
-                <span className="text-4xl">🍽️</span>
+              <div className="w-full h-40 sm:h-48 bg-linear-to-bg from-gray-100 to-gray-200 flex items-center justify-center">
+                <span className="text-3xl sm:text-4xl">🍽️</span>
               </div>
             )}
             <button
               onClick={handleToggleFavorite}
               disabled={isTogglingFavorite}
-              className="absolute top-2 right-2 bg-white rounded-full p-2 shadow-md hover:scale-110 transition-transform disabled:opacity-50"
+              className="absolute top-2 right-2 bg-white rounded-full p-1.5 sm:p-2 shadow-md hover:scale-110 transition-transform disabled:opacity-50"
             >
               <Heart
-                className={`w-5 h-5 transition-colors ${
+                className={`w-4 h-4 sm:w-5 sm:h-5 transition-colors ${
                   isFavorite
                     ? "text-red-500 fill-red-500"
                     : "text-gray-400 hover:text-red-500"
@@ -206,48 +206,55 @@ export default function RecipeCard({
           </CardHeader>
         </Link>
 
-        <CardContent className="p-4 flex-1 flex flex-col">
+        <CardContent className="p-3 sm:p-4 flex-1 flex flex-col">
           <Link href={`/recipes/${recipe.id}`}>
-            <h3 className="font-semibold text-lg mb-2 line-clamp-1 group-hover:text-primary transition-colors">
+            <h3 className="font-semibold text-base sm:text-lg mb-2 line-clamp-1 group-hover:text-primary transition-colors">
               {recipe.title}
             </h3>
           </Link>
 
           {/* Fixed height description area */}
-          <div className="h-10 mb-3">
+          <div className="h-8 sm:h-10 mb-2 sm:mb-3">
             {recipe.description && (
-              <p className="text-sm text-muted-foreground line-clamp-2">
+              <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2">
                 {recipe.description}
               </p>
             )}
           </div>
 
-          <div className="flex items-center gap-4 text-sm text-muted-foreground mb-3">
+          <div className="flex items-center gap-3 sm:gap-4 text-xs sm:text-sm text-muted-foreground mb-2 sm:mb-3">
             {recipe.servings && (
               <div className="flex items-center gap-1">
-                <Users className="w-4 h-4" />
+                <Users className="w-3 h-3 sm:w-4 sm:h-4" />
                 <span>{recipe.servings}</span>
               </div>
             )}
             {totalTime > 0 && (
               <div className="flex items-center gap-1">
-                <Clock className="w-4 h-4" />
+                <Clock className="w-3 h-3 sm:w-4 sm:h-4" />
                 <span>{totalTime} min</span>
               </div>
             )}
           </div>
 
           {/* Fixed height tags area */}
-          <div className="h-8 mt-auto">
+          <div className="h-6 sm:h-8 mt-auto">
             {recipe.tags && recipe.tags.length > 0 && (
               <div className="flex flex-wrap gap-1">
                 {recipe.tags.slice(0, 3).map((tag: string) => (
-                  <Badge key={tag} variant="secondary" className="text-xs">
+                  <Badge
+                    key={tag}
+                    variant="secondary"
+                    className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5"
+                  >
                     {tag}
                   </Badge>
                 ))}
                 {recipe.tags.length > 3 && (
-                  <Badge variant="secondary" className="text-xs">
+                  <Badge
+                    variant="secondary"
+                    className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5"
+                  >
                     +{recipe.tags.length - 3}
                   </Badge>
                 )}
@@ -256,11 +263,11 @@ export default function RecipeCard({
           </div>
         </CardContent>
 
-        <CardFooter className="p-4 pt-0 flex gap-2 mt-auto">
+        <CardFooter className="p-3 sm:p-4 pt-0 flex gap-2 mt-auto">
           <Button
             variant="outline"
             size="sm"
-            className="flex-1"
+            className="flex-1 text-xs sm:text-sm h-8 sm:h-9"
             onClick={(e) => {
               e.preventDefault();
               handleAddToShoppingList();
@@ -271,13 +278,15 @@ export default function RecipeCard({
               <>Loading...</>
             ) : inList ? (
               <>
-                <Check className="w-4 h-4 mr-1" />
-                In Week
+                <Check className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
+                <span className="hidden xs:inline">In Week</span>
+                <span className="xs:hidden">Week</span>
               </>
             ) : (
               <>
-                <Plus className="w-4 h-4 mr-1" />
-                Add to Week
+                <Plus className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
+                <span className="hidden xs:inline">Add to Week</span>
+                <span className="xs:hidden">Add</span>
               </>
             )}
           </Button>
@@ -287,9 +296,10 @@ export default function RecipeCard({
               <Button
                 variant="outline"
                 size="sm"
+                className="h-8 sm:h-9 w-8 sm:w-9 p-0"
                 onClick={(e) => e.preventDefault()}
               >
-                <MoreVertical className="w-4 h-4" />
+                <MoreVertical className="w-3 h-3 sm:w-4 sm:h-4" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
@@ -318,7 +328,7 @@ export default function RecipeCard({
       </Card>
 
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-        <AlertDialogContent>
+        <AlertDialogContent className="max-w-[90vw] sm:max-w-lg">
           <AlertDialogHeader>
             <AlertDialogTitle>Delete Recipe</AlertDialogTitle>
             <AlertDialogDescription>
@@ -326,15 +336,20 @@ export default function RecipeCard({
               action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
+          <AlertDialogFooter className="flex-col sm:flex-row gap-2">
+            <AlertDialogCancel
+              disabled={isDeleting}
+              className="w-full sm:w-auto"
+            >
+              Cancel
+            </AlertDialogCancel>
             <AlertDialogAction
               onClick={(e) => {
                 e.preventDefault();
                 handleDelete();
               }}
               disabled={isDeleting}
-              className="bg-red-600 hover:bg-red-700"
+              className="bg-red-600 hover:bg-red-700 w-full sm:w-auto"
             >
               {isDeleting ? "Deleting..." : "Delete"}
             </AlertDialogAction>

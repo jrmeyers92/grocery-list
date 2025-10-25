@@ -1,4 +1,3 @@
-import GroceryList from "@/components/shopping-list/GroceryList";
 import ShoppingListHeader from "@/components/shopping-list/ShoppingListHeader";
 import ShoppingListWrapper from "@/components/shopping-list/ShoppingListWrapper";
 import { createAdminClient } from "@/lib/supabase/clients/admin";

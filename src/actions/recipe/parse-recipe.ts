@@ -52,6 +52,8 @@ interface ParseRecipeResult {
   error?: string;
 }
 
+const MAX_RECIPE_LENGTH = 8000;
+
 export async function parseRecipe(
   recipeText: string
 ): Promise<ParseRecipeResult> {
@@ -59,6 +61,13 @@ export async function parseRecipe(
     return {
       success: false,
       error: "Recipe text is required",
+    };
+  }
+
+  if (recipeText.length > MAX_RECIPE_LENGTH) {
+    return {
+      success: false,
+      error: `Recipe text exceeds maximum length of ${MAX_RECIPE_LENGTH} characters`,
     };
   }
 
