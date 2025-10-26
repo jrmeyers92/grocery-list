@@ -25,6 +25,12 @@ import {
   createRecipeClientSchema,
   type CreateRecipeClientInput,
 } from "@/lib/validation/recipe";
+import {
+  ACCEPTED_IMAGE_TYPES,
+  INGREDIENT_AISLES,
+  INGREDIENT_UNITS,
+  MAX_FILE_SIZE,
+} from "@/types/constants";
 import type { RecipeWithIngredients } from "@/types/database.types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2, Plus, Upload, X } from "lucide-react";
@@ -32,45 +38,6 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { toast } from "sonner";
-
-const INGREDIENT_UNITS = [
-  "unit",
-  "tsp",
-  "tbsp",
-  "cup",
-  "ml",
-  "l",
-  "g",
-  "kg",
-  "oz",
-  "lb",
-  "pinch",
-  "dash",
-] as const;
-
-const INGREDIENT_AISLES = [
-  "produce",
-  "meat",
-  "seafood",
-  "dairy",
-  "bakery",
-  "canned",
-  "dry_goods",
-  "frozen",
-  "spices",
-  "baking",
-  "beverages",
-  "other",
-] as const;
-
-const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
-const ACCEPTED_IMAGE_TYPES = [
-  "image/jpeg",
-  "image/jpg",
-  "image/png",
-  "image/webp",
-  "image/gif",
-];
 
 interface EditRecipeFormProps {
   recipe: RecipeWithIngredients;

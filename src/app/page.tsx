@@ -130,7 +130,7 @@ export default function Home() {
               </SignedOut>
             </div>
 
-            <div className="bg-gradient-to-br from-primary/20 to-primary/5 rounded-2xl p-8 md:p-12">
+            <div className=" bg-linear-to-br from-primary/20 to-primary/5 rounded-2xl p-8 md:p-12">
               <div className="bg-background rounded-xl p-6 shadow-lg space-y-4">
                 <div className="flex items-center gap-3 text-sm text-muted-foreground">
                   <MapPin size={16} />
@@ -235,7 +235,7 @@ function FeatureCard({
 function BenefitItem({ text }: { text: string }) {
   return (
     <li className="flex items-start gap-3">
-      <div className="w-6 h-6 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+      <div className="w-6 h-6 bg-primary/10 rounded-full flex items-center justify-center shrink-0 mt-0.5">
         <ListChecks size={16} className="text-primary" />
       </div>
       <span className="text-muted-foreground">{text}</span>

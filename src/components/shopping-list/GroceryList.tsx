@@ -15,7 +15,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { RecipeWithIngredients } from "@/types/database.types";
+import { INGREDIENT_AISLES, INGREDIENT_UNITS } from "@/types/constants";
+import { Ingredient, RecipeWithIngredients } from "@/types/database.types";
 import { Plus, RotateCcw, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
@@ -51,44 +52,6 @@ interface CombinedIngredient {
   isCustom?: boolean;
   id?: string;
 }
-
-interface RecipeIngredient {
-  name_raw: string;
-  quantity: number;
-  unit: string;
-  aisle: string | null;
-  notes: string | null;
-}
-
-const AISLES = [
-  { value: "produce", label: "Produce" },
-  { value: "meat", label: "Meat" },
-  { value: "seafood", label: "Seafood" },
-  { value: "dairy", label: "Dairy" },
-  { value: "bakery", label: "Bakery" },
-  { value: "canned", label: "Canned" },
-  { value: "dry_goods", label: "Dry Goods" },
-  { value: "frozen", label: "Frozen" },
-  { value: "spices", label: "Spices" },
-  { value: "baking", label: "Baking" },
-  { value: "beverages", label: "Beverages" },
-  { value: "other", label: "Other" },
-];
-
-const UNITS = [
-  "unit",
-  "tsp",
-  "tbsp",
-  "cup",
-  "ml",
-  "l",
-  "g",
-  "kg",
-  "oz",
-  "lb",
-  "pinch",
-  "dash",
-];
 
 export default function GroceryList({
   listId,
@@ -265,27 +228,25 @@ export default function GroceryList({
       const recipe = item.recipe;
       const multiplier = item.serving_multiplier || 1;
 
-      recipe.grocerylist_recipe_ingredients?.forEach(
-        (ing: RecipeIngredient) => {
-          const key = `${ing.name_raw.toLowerCase()}-${ing.unit}`;
-          const existing = ingredientMap.get(key);
+      recipe.grocerylist_recipe_ingredients?.forEach((ing: Ingredient) => {
+        const key = `${ing.name_raw.toLowerCase()}-${ing.unit}`;
+        const existing = ingredientMap.get(key);
 
-          if (existing) {
-            existing.totalQuantity += ing.quantity * multiplier;
-            if (ing.notes && !existing.notes.includes(ing.notes)) {
-              existing.notes.push(ing.notes);
-            }
-          } else {
-            ingredientMap.set(key, {
-              name: ing.name_raw,
-              totalQuantity: ing.quantity * multiplier,
-              unit: ing.unit,
-              aisle: ing.aisle || "other",
-              notes: ing.notes ? [ing.notes] : [],
-            });
+        if (existing) {
+          existing.totalQuantity += ing.quantity * multiplier;
+          if (ing.notes && !existing.notes.includes(ing.notes)) {
+            existing.notes.push(ing.notes);
           }
+        } else {
+          ingredientMap.set(key, {
+            name: ing.name_raw,
+            totalQuantity: ing.quantity * multiplier,
+            unit: ing.unit,
+            aisle: ing.aisle || "other",
+            notes: ing.notes ? [ing.notes] : [],
+          });
         }
-      );
+      });
     });
 
     // Add custom items
@@ -407,7 +368,7 @@ export default function GroceryList({
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {UNITS.map((unit) => (
+                  {INGREDIENT_UNITS.map((unit) => (
                     <SelectItem key={unit} value={unit}>
                       {unit}
                     </SelectItem>
@@ -425,9 +386,9 @@ export default function GroceryList({
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {AISLES.map((aisle) => (
-                  <SelectItem key={aisle.value} value={aisle.value}>
-                    {aisle.label}
+                {INGREDIENT_AISLES.map((aisle) => (
+                  <SelectItem key={aisle} value={aisle.toUpperCase()}>
+                    {aisle.toUpperCase()}
                   </SelectItem>
                 ))}
               </SelectContent>

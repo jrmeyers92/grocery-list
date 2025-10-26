@@ -22,6 +22,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { INGREDIENT_AISLES } from "@/types/constants";
 import { Enums } from "@/types/database.types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2, Package, Plus, Search, Trash2 } from "lucide-react";
@@ -29,21 +30,6 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
-
-const INGREDIENT_AISLES = [
-  "produce",
-  "meat",
-  "seafood",
-  "dairy",
-  "bakery",
-  "canned",
-  "dry_goods",
-  "frozen",
-  "spices",
-  "baking",
-  "beverages",
-  "other",
-] as const;
 
 // Schema matching your database
 const stockedItemSchema = z.object({
