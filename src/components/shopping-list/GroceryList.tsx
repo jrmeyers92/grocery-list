@@ -16,7 +16,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { RecipeWithIngredients } from "@/types/database.types";
-import { Plus, X } from "lucide-react";
+import { Plus, RotateCcw, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 
@@ -95,8 +95,8 @@ export default function GroceryList({
   recipes,
   customItems = [],
 }: GroceryListProps) {
-  // Start with empty set to avoid hydration mismatch
   const [checkedItems, setCheckedItems] = useState<Set<string>>(new Set());
+  const [hiddenItems, setHiddenItems] = useState<Set<string>>(new Set());
   const [showAddForm, setShowAddForm] = useState(false);
   const [isAdding, setIsAdding] = useState(false);
   const [newItem, setNewItem] = useState({
@@ -106,16 +106,22 @@ export default function GroceryList({
     aisle: "other",
   });
 
-  // Load checked items from localStorage after mount (client-side only)
+  // Load checked and hidden items from localStorage after mount
   useEffect(() => {
     try {
-      const stored = localStorage.getItem(`checkedItems-${listId}`);
-      if (stored) {
-        const parsed = JSON.parse(stored) as string[];
+      const storedChecked = localStorage.getItem(`checkedItems-${listId}`);
+      if (storedChecked) {
+        const parsed = JSON.parse(storedChecked) as string[];
         setCheckedItems(new Set(parsed));
       }
+
+      const storedHidden = localStorage.getItem(`hiddenItems-${listId}`);
+      if (storedHidden) {
+        const parsed = JSON.parse(storedHidden) as string[];
+        setHiddenItems(new Set(parsed));
+      }
     } catch (error) {
-      console.error("Error loading checked items:", error);
+      console.error("Error loading items:", error);
     }
   }, [listId]);
 
@@ -129,7 +135,6 @@ export default function GroceryList({
         newSet.add(key);
       }
 
-      // Save to localStorage
       try {
         localStorage.setItem(
           `checkedItems-${listId}`,
@@ -141,6 +146,60 @@ export default function GroceryList({
 
       return newSet;
     });
+  };
+
+  const handleHideIngredient = (key: string, name: string) => {
+    setHiddenItems((prev) => {
+      const newSet = new Set(prev);
+      newSet.add(key);
+
+      try {
+        localStorage.setItem(
+          `hiddenItems-${listId}`,
+          JSON.stringify(Array.from(newSet))
+        );
+      } catch (error) {
+        console.error("Error saving hidden items:", error);
+      }
+
+      return newSet;
+    });
+
+    toast.success("Removed from list", {
+      description: `${name} - you already have this`,
+    });
+  };
+
+  const handleRestoreIngredient = (key: string, name: string) => {
+    setHiddenItems((prev) => {
+      const newSet = new Set(prev);
+      newSet.delete(key);
+
+      try {
+        localStorage.setItem(
+          `hiddenItems-${listId}`,
+          JSON.stringify(Array.from(newSet))
+        );
+      } catch (error) {
+        console.error("Error saving hidden items:", error);
+      }
+
+      return newSet;
+    });
+
+    toast.success("Added back", {
+      description: `${name} restored to shopping list`,
+    });
+  };
+
+  const handleRestoreAll = () => {
+    setHiddenItems(new Set());
+    try {
+      localStorage.removeItem(`hiddenItems-${listId}`);
+      toast.success("All items restored to shopping list");
+    } catch (error) {
+      console.error("Error clearing hidden items:", error);
+    }
   };
 
   const handleAddCustomItem = async () => {
@@ -260,6 +319,29 @@ export default function GroceryList({
     return byAisle;
   }, [recipes, customItems]);
 
+  const { visibleIngredients, hiddenIngredientsList } = useMemo(() => {
+    const visible: Record<string, CombinedIngredient[]> = {};
+    const hidden: CombinedIngredient[] = [];
+
+    Object.entries(combinedIngredients).forEach(([aisle, ingredients]) => {
+      ingredients.forEach((ingredient) => {
+        const key =
+          ingredient.id || `${aisle}-${ingredient.name}-${ingredient.unit}`;
+
+        if (hiddenItems.has(key)) {
+          hidden.push({ ...ingredient, aisle });
+        } else {
+          if (!visible[aisle]) {
+            visible[aisle] = [];
+          }
+          visible[aisle].push(ingredient);
+        }
+      });
+    });
+
+    return { visibleIngredients: visible, hiddenIngredientsList: hidden };
+  }, [combinedIngredients, hiddenItems]);
+
   const totalItems = useMemo(() => {
     return Object.values(combinedIngredients).reduce(
       (sum, items) => sum + items.length,
@@ -267,6 +349,7 @@ export default function GroceryList({
     );
   }, [combinedIngredients]);
 
+  const visibleItemsCount = totalItems - hiddenItems.size;
   const checkedCount = checkedItems.size;
 
   return (
@@ -276,7 +359,7 @@ export default function GroceryList({
           <span>Grocery List</span>
           <div className="flex items-center gap-2">
             <span className="text-sm font-normal text-muted-foreground">
-              {checkedCount}/{totalItems}
+              {checkedCount}/{visibleItemsCount}
             </span>
             <Button
               variant="outline"
@@ -368,71 +451,145 @@ export default function GroceryList({
           </div>
         )}
 
-        {Object.keys(combinedIngredients).length === 0 ? (
+        {Object.keys(visibleIngredients).length === 0 &&
+        hiddenIngredientsList.length === 0 ? (
           <p className="text-muted-foreground text-sm text-center py-4">
             Add recipes to see your grocery list
           </p>
         ) : (
-          Object.entries(combinedIngredients).map(([aisle, ingredients]) => (
-            <div key={aisle}>
-              <h3 className="font-semibold text-sm text-muted-foreground uppercase mb-3 sticky top-0 bg-background">
-                {aisle.replace("_", " ")}
-              </h3>
-              <div className="space-y-2">
-                {ingredients.map((ingredient) => {
-                  const key =
-                    ingredient.id ||
-                    `${aisle}-${ingredient.name}-${ingredient.unit}`;
-                  const isChecked = checkedItems.has(key);
+          <>
+            {/* Active Shopping List */}
+            {Object.entries(visibleIngredients).map(([aisle, ingredients]) => {
+              if (ingredients.length === 0) return null;
 
-                  return (
-                    <div key={key} className="flex items-start space-x-3 group">
-                      <Checkbox
-                        checked={isChecked}
-                        onCheckedChange={() => toggleIngredient(key)}
-                        className="mt-1"
-                      />
-                      <label
-                        className={`text-sm flex-1 cursor-pointer transition-all ${
-                          isChecked ? "line-through text-muted-foreground" : ""
-                        }`}
-                        onClick={() => toggleIngredient(key)}
+              return (
+                <div key={aisle}>
+                  <h3 className="font-semibold text-sm text-muted-foreground uppercase mb-3 sticky top-0 bg-background">
+                    {aisle.replace("_", " ")}
+                  </h3>
+                  <div className="space-y-2">
+                    {ingredients.map((ingredient) => {
+                      const key =
+                        ingredient.id ||
+                        `${aisle}-${ingredient.name}-${ingredient.unit}`;
+                      const isChecked = checkedItems.has(key);
+
+                      return (
+                        <div
+                          key={key}
+                          className="flex items-start space-x-3 group"
+                        >
+                          <Checkbox
+                            checked={isChecked}
+                            onCheckedChange={() => toggleIngredient(key)}
+                            className="mt-1"
+                          />
+                          <label
+                            className={`text-sm flex-1 cursor-pointer transition-all ${
+                              isChecked
+                                ? "line-through text-muted-foreground"
+                                : ""
+                            }`}
+                            onClick={() => toggleIngredient(key)}
+                          >
+                            <span className="font-medium">
+                              {ingredient.totalQuantity % 1 === 0
+                                ? ingredient.totalQuantity
+                                : ingredient.totalQuantity.toFixed(2)}{" "}
+                              {ingredient.unit}
+                            </span>{" "}
+                            {ingredient.name}
+                            {ingredient.notes.length > 0 && (
+                              <span className="text-muted-foreground">
+                                {" "}
+                                ({ingredient.notes.join(", ")})
+                              </span>
+                            )}
+                          </label>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
+                            onClick={() =>
+                              ingredient.isCustom
+                                ? handleRemoveCustomItem(
+                                    ingredient.id!,
+                                    ingredient.name
+                                  )
+                                : handleHideIngredient(key, ingredient.name)
+                            }
+                          >
+                            <X className="h-3 w-3" />
+                          </Button>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              );
+            })}
+
+            {/* Items You Already Have */}
+            {hiddenIngredientsList.length > 0 && (
+              <div className="pt-6 border-t">
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="font-semibold text-sm text-muted-foreground uppercase">
+                    Items You Already Have ({hiddenIngredientsList.length})
+                  </h3>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-7 text-xs"
+                    onClick={handleRestoreAll}
+                  >
+                    <RotateCcw className="w-3 h-3 mr-1" />
+                    Restore All
+                  </Button>
+                </div>
+                <div className="space-y-2">
+                  {hiddenIngredientsList.map((ingredient) => {
+                    const key =
+                      ingredient.id ||
+                      `${ingredient.aisle}-${ingredient.name}-${ingredient.unit}`;
+
+                    return (
+                      <div
+                        key={key}
+                        className="flex items-start space-x-3 opacity-40 group hover:opacity-60 transition-opacity"
                       >
-                        <span className="font-medium">
-                          {ingredient.totalQuantity % 1 === 0
-                            ? ingredient.totalQuantity
-                            : ingredient.totalQuantity.toFixed(2)}{" "}
-                          {ingredient.unit}
-                        </span>{" "}
-                        {ingredient.name}
-                        {ingredient.notes.length > 0 && (
-                          <span className="text-muted-foreground">
-                            {" "}
-                            ({ingredient.notes.join(", ")})
-                          </span>
-                        )}
-                      </label>
-                      {ingredient.isCustom && (
+                        <div className="w-4 mt-1" />
+                        <label className="text-sm flex-1 line-through text-muted-foreground">
+                          <span className="font-medium">
+                            {ingredient.totalQuantity % 1 === 0
+                              ? ingredient.totalQuantity
+                              : ingredient.totalQuantity.toFixed(2)}{" "}
+                            {ingredient.unit}
+                          </span>{" "}
+                          {ingredient.name}
+                          {ingredient.notes.length > 0 && (
+                            <span className="text-muted-foreground">
+                              {" "}
+                              ({ingredient.notes.join(", ")})
+                            </span>
+                          )}
+                        </label>
                         <Button
                           variant="ghost"
                           size="icon"
                           className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
                           onClick={() =>
-                            handleRemoveCustomItem(
-                              ingredient.id!,
-                              ingredient.name
-                            )
+                            handleRestoreIngredient(key, ingredient.name)
                           }
                         >
-                          <X className="h-3 w-3" />
+                          <RotateCcw className="h-3 w-3" />
                         </Button>
-                      )}
-                    </div>
-                  );
-                })}
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
-            </div>
-          ))
+            )}
+          </>
         )}
       </CardContent>
     </Card>
