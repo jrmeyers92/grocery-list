@@ -51,6 +51,7 @@ interface CombinedIngredient {
   notes: string[];
   isCustom?: boolean;
   id?: string;
+  recipeNames?: string[]; // Add this to track recipe names
 }
 
 export default function GroceryList({
@@ -88,7 +89,6 @@ export default function GroceryList({
     }
   }, [listId]);
 
-  // Save checked items to localStorage whenever they change
   const toggleIngredient = (key: string) => {
     setCheckedItems((prev) => {
       const newSet = new Set(prev);
@@ -207,7 +207,6 @@ export default function GroceryList({
         toast.success("Removed", {
           description: `${name} removed from list`,
         });
-        // Remove from checked items if it was checked
         setCheckedItems((prev) => {
           const newSet = new Set(prev);
           newSet.delete(id);
@@ -237,6 +236,13 @@ export default function GroceryList({
           if (ing.notes && !existing.notes.includes(ing.notes)) {
             existing.notes.push(ing.notes);
           }
+          // Add recipe name if not already included
+          if (!existing.recipeNames?.includes(recipe.title)) {
+            existing.recipeNames = [
+              ...(existing.recipeNames || []),
+              recipe.title,
+            ];
+          }
         } else {
           ingredientMap.set(key, {
             name: ing.name_raw,
@@ -244,6 +250,7 @@ export default function GroceryList({
             unit: ing.unit,
             aisle: ing.aisle || "other",
             notes: ing.notes ? [ing.notes] : [],
+            recipeNames: [recipe.title], // Track which recipe this is from
           });
         }
       });
@@ -466,6 +473,13 @@ export default function GroceryList({
                                 ({ingredient.notes.join(", ")})
                               </span>
                             )}
+                            {/* Show which recipes use this ingredient */}
+                            {ingredient.recipeNames &&
+                              ingredient.recipeNames.length > 0 && (
+                                <span className="block text-xs text-muted-foreground mt-0.5">
+                                  For: {ingredient.recipeNames.join(", ")}
+                                </span>
+                              )}
                           </label>
                           <Button
                             variant="ghost"
@@ -533,6 +547,13 @@ export default function GroceryList({
                               ({ingredient.notes.join(", ")})
                             </span>
                           )}
+                          {/* Show recipe names for hidden items too */}
+                          {ingredient.recipeNames &&
+                            ingredient.recipeNames.length > 0 && (
+                              <span className="block text-xs text-muted-foreground/60 mt-0.5">
+                                For: {ingredient.recipeNames.join(", ")}
+                              </span>
+                            )}
                         </label>
                         <Button
                           variant="ghost"
