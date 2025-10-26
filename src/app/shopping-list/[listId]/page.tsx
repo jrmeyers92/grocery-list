@@ -1,5 +1,4 @@
 import GroceryList from "@/components/shopping-list/GroceryList";
-import ShoppingListWrapper from "@/components/shopping-list/ShoppingListWrapper";
 import { Button } from "@/components/ui/button";
 import { createAdminClient } from "@/lib/supabase/clients/admin";
 import { RecipeWithIngredients } from "@/types/database.types";
