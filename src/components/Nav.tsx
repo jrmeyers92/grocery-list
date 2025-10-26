@@ -22,7 +22,7 @@ import { buttonVariants } from "./ui/button";
 
 const Nav = () => {
   return (
-    <nav className="border-b sticky top-0 z-50 w-full backdrop-blur-md bg-background/80 supports-[backdrop-filter]:bg-background/60 py-3 px-4">
+    <nav className="border-b sticky top-0 z-50 w-full backdrop-blur-md bg-background/80 supports-backdrop-filter:bg-background/60 py-3 px-4">
       <div className="flex items-center justify-between max-w-7xl mx-auto">
         {/* Logo and Brand Name */}
         <Link
