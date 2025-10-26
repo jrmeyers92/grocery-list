@@ -1,31 +1,13 @@
 "use server";
 
-type IngredientUnit =
-  | "unit"
-  | "tsp"
-  | "tbsp"
-  | "cup"
-  | "ml"
-  | "l"
-  | "g"
-  | "kg"
-  | "oz"
-  | "lb"
-  | "pinch"
-  | "dash";
-type IngredientAisle =
-  | "produce"
-  | "meat"
-  | "seafood"
-  | "dairy"
-  | "bakery"
-  | "canned"
-  | "dry_goods"
-  | "frozen"
-  | "spices"
-  | "baking"
-  | "beverages"
-  | "other";
+import {
+  Constants,
+  IngredientAisle,
+  IngredientUnit,
+} from "@/types/database.types";
+
+const INGREDIENT_UNITS = Constants.public.Enums.ingredient_units;
+const INGREDIENT_AISLES = Constants.public.Enums.ingredient_aisles;
 
 interface ParsedRecipe {
   title: string;
@@ -110,8 +92,8 @@ Return a JSON object with this exact structure:
   ]
 }
 
-Valid units: unit, tsp, tbsp, cup, ml, l, g, kg, oz, lb, pinch, dash
-Valid aisles: produce, meat, seafood, dairy, bakery, canned, dry_goods, frozen, spices, baking, beverages, other
+Valid units: ${INGREDIENT_UNITS.join(", ")}
+Valid aisles: ${INGREDIENT_AISLES.join(", ")}
 
 Rules:
 - Extract all ingredients with their quantities and units

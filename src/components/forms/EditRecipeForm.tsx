@@ -25,13 +25,9 @@ import {
   createRecipeClientSchema,
   type CreateRecipeClientInput,
 } from "@/lib/validation/recipe";
-import {
-  ACCEPTED_IMAGE_TYPES,
-  INGREDIENT_AISLES,
-  INGREDIENT_UNITS,
-  MAX_FILE_SIZE,
-} from "@/types/constants";
+import { ACCEPTED_IMAGE_TYPES, MAX_FILE_SIZE } from "@/types/constants";
 import type { RecipeWithIngredients } from "@/types/database.types";
+import { Constants } from "@/types/database.types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2, Plus, Upload, X } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -42,6 +38,9 @@ import { toast } from "sonner";
 interface EditRecipeFormProps {
   recipe: RecipeWithIngredients;
 }
+
+const INGREDIENT_UNITS = Constants.public.Enums.ingredient_units;
+const INGREDIENT_AISLES = Constants.public.Enums.ingredient_aisles;
 
 export default function EditRecipeForm({ recipe }: EditRecipeFormProps) {
   const router = useRouter();

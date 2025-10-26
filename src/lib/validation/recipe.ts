@@ -1,36 +1,18 @@
 // lib/validation/recipe.ts
+import { Constants } from "@/types/database.types";
 import { z } from "zod";
 
-// Enums for validation
-export const ingredientUnitSchema = z.enum([
-  "unit",
-  "tsp",
-  "tbsp",
-  "cup",
-  "ml",
-  "l",
-  "g",
-  "kg",
-  "oz",
-  "lb",
-  "pinch",
-  "dash",
-]);
+const INGREDIENT_UNITS = Constants.public.Enums.ingredient_units;
+const INGREDIENT_AISLES = Constants.public.Enums.ingredient_aisles;
 
-export const ingredientAisleSchema = z.enum([
-  "produce",
-  "meat",
-  "seafood",
-  "dairy",
-  "bakery",
-  "canned",
-  "dry_goods",
-  "frozen",
-  "spices",
-  "baking",
-  "beverages",
-  "other",
-]);
+// Enums for validation - dynamically created from database types
+export const ingredientUnitSchema = z.enum(
+  INGREDIENT_UNITS as unknown as [string, ...string[]]
+);
+
+export const ingredientAisleSchema = z.enum(
+  INGREDIENT_AISLES as unknown as [string, ...string[]]
+);
 
 // Ingredient schema (for nested form)
 export const ingredientSchema = z.object({

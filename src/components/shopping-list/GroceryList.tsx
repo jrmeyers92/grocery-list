@@ -15,11 +15,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { INGREDIENT_AISLES, INGREDIENT_UNITS } from "@/types/constants";
-import { Ingredient, RecipeWithIngredients } from "@/types/database.types";
+import {
+  Constants,
+  Ingredient,
+  RecipeWithIngredients,
+} from "@/types/database.types";
 import { Plus, RotateCcw, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
+
+const INGREDIENT_UNITS = Constants.public.Enums.ingredient_units;
+const INGREDIENT_AISLES = Constants.public.Enums.ingredient_aisles;
 
 interface ShoppingListRecipe {
   id: string;
@@ -394,8 +400,11 @@ export default function GroceryList({
               </SelectTrigger>
               <SelectContent>
                 {INGREDIENT_AISLES.map((aisle) => (
-                  <SelectItem key={aisle} value={aisle.toUpperCase()}>
-                    {aisle.toUpperCase()}
+                  <SelectItem key={aisle} value={aisle}>
+                    {" "}
+                    {/* ✅ Correct - pass lowercase value */}
+                    {aisle.replace("_", " ").toUpperCase()}{" "}
+                    {/* Only uppercase for display */}
                   </SelectItem>
                 ))}
               </SelectContent>
