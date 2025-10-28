@@ -118,7 +118,7 @@ export default function ShoppingListRecipes({
                 className="flex gap-4 p-4 border rounded-lg hover:bg-muted/50 transition-colors"
               >
                 {recipe.image_url && (
-                  <div className="relative w-20 h-20 rounded-md overflow-hidden flex-shrink-0">
+                  <div className="relative w-20 h-20 rounded-md overflow-hidden shrink-0">
                     <Image
                       src={recipe.image_url}
                       alt={recipe.title}
@@ -142,7 +142,7 @@ export default function ShoppingListRecipes({
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="flex-shrink-0"
+                      className="shrink-0"
                       onClick={() => handleRemove(recipe.id, recipe.title)}
                     >
                       <X className="h-4 w-4" />

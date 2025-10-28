@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import * as React from "react";
+import { ShoppingListBadge } from "./shopping-list/ShoppingListBadge";
 import { buttonVariants } from "./ui/button";
 
 const Nav = () => {
@@ -48,11 +49,12 @@ const Nav = () => {
 
             <Link
               href="/shopping-list"
-              className={buttonVariants({ variant: "ghost" })}
+              className={`${buttonVariants({ variant: "ghost" })} relative`}
               aria-label="View shopping list"
             >
               <ShoppingCart className="mr-2 h-4 w-4" aria-hidden="true" />
               Shopping List
+              <ShoppingListBadge />
             </Link>
 
             <Link
@@ -137,7 +139,7 @@ const Nav = () => {
                     <SheetClose asChild>
                       <Link
                         href="/shopping-list"
-                        className="flex items-center py-3 px-4 rounded-lg hover:bg-accent transition-colors focus:outline-none focus:ring-2 focus:ring-primary"
+                        className="flex items-center py-3 px-4 rounded-lg hover:bg-accent transition-colors focus:outline-none focus:ring-2 focus:ring-primary relative"
                       >
                         <ShoppingCart
                           className="h-5 w-5 mr-3"
@@ -146,6 +148,7 @@ const Nav = () => {
                         <span className="text-base font-medium">
                           Shopping List
                         </span>
+                        <ShoppingListBadge />
                       </Link>
                     </SheetClose>
 
