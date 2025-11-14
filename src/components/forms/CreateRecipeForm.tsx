@@ -537,6 +537,25 @@ export default function CreateRecipeForm() {
                 </div>
               ))}
             </div>
+            <div className="flex justify-end">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() =>
+                  appendIngredient({
+                    name_raw: "",
+                    quantity: 1,
+                    unit: "unit",
+                    aisle: "other",
+                    notes: "",
+                  })
+                }
+              >
+                <Plus className="w-4 h-4 mr-2 ml-auto" />
+                Add Ingredient
+              </Button>
+            </div>
           </div>
 
           <div className="space-y-4 p-6 border rounded-lg">
@@ -592,6 +611,22 @@ export default function CreateRecipeForm() {
                   />
                 </div>
               ))}
+            </div>
+            <div className="flex justify-end">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() =>
+                  appendStep({
+                    step_number: stepFields.length + 1,
+                    instruction: "",
+                  })
+                }
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                Add Step
+              </Button>
             </div>
           </div>
 
