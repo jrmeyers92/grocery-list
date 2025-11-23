@@ -101,6 +101,7 @@ export type Database = {
           id: string;
           image_url: string | null;
           is_favorite: boolean | null;
+          is_public: boolean | null;
           owner_id: string;
           prep_time: number | null;
           servings: number | null;

@@ -61,6 +61,7 @@ export default function EditRecipeForm({ recipe }: EditRecipeFormProps) {
       recipeImage: null,
       tags: recipe.tags || [],
       is_favorite: recipe.is_favorite || false,
+      is_public: recipe.is_public || false,
       ingredients:
         recipe.grocerylist_recipe_ingredients.map((ing) => ({
           name_raw: ing.name_raw,
@@ -357,6 +358,29 @@ export default function EditRecipeForm({ recipe }: EditRecipeFormProps) {
                 </FormItem>
               )}
             />
+
+            {/* Add this new field: */}
+            <FormField
+              control={form.control}
+              name="is_public"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                  <FormControl>
+                    <Checkbox
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                  <div className="space-y-1 leading-none">
+                    <FormLabel>Make Recipe Public</FormLabel>
+                    <FormDescription>
+                      Allow other users to discover and view this recipe
+                    </FormDescription>
+                  </div>
+                </FormItem>
+              )}
+            />
+
             <FormField
               control={form.control}
               name="tags"

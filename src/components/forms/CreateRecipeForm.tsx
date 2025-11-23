@@ -55,6 +55,7 @@ export default function CreateRecipeForm() {
       recipeImage: null,
       tags: [],
       is_favorite: false,
+      is_public: false, // Add this line
       ingredients: [
         { name_raw: "", quantity: 1, unit: "unit", aisle: "other", notes: "" },
       ],
@@ -160,7 +161,6 @@ export default function CreateRecipeForm() {
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
           <div className="space-y-4 p-6 border rounded-lg">
             <h2 className="text-xl font-semibold">Basic Information</h2>
-
             <FormField
               control={form.control}
               name="title"
@@ -177,7 +177,6 @@ export default function CreateRecipeForm() {
                 </FormItem>
               )}
             />
-
             <FormField
               control={form.control}
               name="description"
@@ -195,7 +194,6 @@ export default function CreateRecipeForm() {
                 </FormItem>
               )}
             />
-
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <FormField
                 control={form.control}
@@ -272,7 +270,6 @@ export default function CreateRecipeForm() {
                 )}
               />
             </div>
-
             <FormField
               control={form.control}
               name="recipeImage"
@@ -334,7 +331,6 @@ export default function CreateRecipeForm() {
                 </FormItem>
               )}
             />
-
             <FormField
               control={form.control}
               name="is_favorite"
@@ -350,6 +346,27 @@ export default function CreateRecipeForm() {
                     <FormLabel>Mark as Favorite</FormLabel>
                     <FormDescription>
                       Add this recipe to your favorites
+                    </FormDescription>
+                  </div>
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="is_public"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                  <FormControl>
+                    <Checkbox
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                  <div className="space-y-1 leading-none">
+                    <FormLabel>Make Recipe Public</FormLabel>
+                    <FormDescription>
+                      Allow other users to discover and view this recipe
                     </FormDescription>
                   </div>
                 </FormItem>

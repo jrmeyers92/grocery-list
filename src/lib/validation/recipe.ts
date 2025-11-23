@@ -39,6 +39,7 @@ export const createRecipeClientSchema = z.object({
   recipeImage: z.instanceof(File).nullable().optional(),
   tags: z.array(z.string()),
   is_favorite: z.boolean(),
+  is_public: z.boolean(),
   ingredients: z
     .array(ingredientSchema)
     .min(1, "At least one ingredient is required"),
