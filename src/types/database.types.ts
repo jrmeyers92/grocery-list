@@ -483,6 +483,42 @@ export type Database = {
         };
         Relationships: [];
       };
+      grocerylist_users: {
+        Row: {
+          avatar_url: string | null;
+          bio: string | null;
+          clerk_id: string;
+          created_at: string | null;
+          display_name: string | null;
+          id: string;
+          onboarding_completed: boolean | null;
+          updated_at: string | null;
+          username: string;
+        };
+        Insert: {
+          avatar_url?: string | null;
+          bio?: string | null;
+          clerk_id: string;
+          created_at?: string | null;
+          display_name?: string | null;
+          id?: string;
+          onboarding_completed?: boolean | null;
+          updated_at?: string | null;
+          username: string;
+        };
+        Update: {
+          avatar_url?: string | null;
+          bio?: string | null;
+          clerk_id?: string;
+          created_at?: string | null;
+          display_name?: string | null;
+          id?: string;
+          onboarding_completed?: boolean | null;
+          updated_at?: string | null;
+          username?: string;
+        };
+        Relationships: [];
+      };
       portals_client_users: {
         Row: {
           auth_user_id: string | null;
@@ -1697,4 +1733,21 @@ export type IngredientAisle = Database["public"]["Enums"]["ingredient_aisles"];
 export type RecipeWithIngredients = Recipe & {
   grocerylist_recipe_ingredients: Ingredient[];
   grocerylist_recipe_steps: Step[];
+};
+
+// User types
+export type User = Database["public"]["Tables"]["grocerylist_users"]["Row"];
+export type UserInsert =
+  Database["public"]["Tables"]["grocerylist_users"]["Insert"];
+export type UserUpdate =
+  Database["public"]["Tables"]["grocerylist_users"]["Update"];
+
+// Composite type for recipes with user info
+export type RecipeWithUser = Recipe & {
+  user: User;
+};
+
+// For later when you add follows/favorites tables
+export type RecipeWithUserAndFavorite = RecipeWithUser & {
+  is_favorited: boolean;
 };

@@ -2,8 +2,10 @@ import "@/app/globals.css";
 import Nav from "@/components/Nav";
 import { Toaster } from "@/components/ui/sonner";
 import { ClerkProvider } from "@clerk/nextjs";
+import { Analytics } from "@vercel/analytics/react";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -32,6 +34,7 @@ export default function RootLayout({
         >
           <Nav />
           {children}
+          <Analytics />
           <Toaster />
         </body>
       </ClerkProvider>

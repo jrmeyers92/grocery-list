@@ -1,6 +1,5 @@
-// middleware.ts
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
 // Define public routes that don't require authentication
 const isPublicRoute = createRouteMatcher([
@@ -10,15 +9,17 @@ const isPublicRoute = createRouteMatcher([
   "/api/webhooks(.*)",
 ]);
 
+// Define onboarding routes
+const isOnboardingRoute = createRouteMatcher(["/onboarding(.*)"]);
+
 // Define API routes that need protection
 const isProtectedApiRoute = createRouteMatcher([
   "/api/protected(.*)",
   "/recipes",
   "/recipes/new",
-  // Add other protected API routes
 ]);
 
-export default clerkMiddleware(async (auth, req) => {
+export default clerkMiddleware(async (auth, req: NextRequest) => {
   const path = req.nextUrl.pathname;
 
   // Handle API routes first
@@ -39,22 +40,33 @@ export default clerkMiddleware(async (auth, req) => {
     return NextResponse.next();
   }
 
-  // Skip middleware for Next.js internals and static files
+  // Skip for Next.js internals and static files
   if (path.startsWith("/_next")) {
     return NextResponse.next();
   }
 
-  // For public routes, don't require authentication
-  if (isPublicRoute(req)) {
+  const { userId, sessionClaims, redirectToSignIn } = await auth();
+
+  // For users visiting /onboarding, don't try to redirect
+  if (userId && isOnboardingRoute(req)) {
     return NextResponse.next();
   }
 
-  // Get auth info for protected routes
-  const { userId } = await auth();
-
-  // If not authenticated and trying to access protected route
+  // If the user isn't signed in and the route is private, redirect to sign-in
   if (!userId && !isPublicRoute(req)) {
-    return NextResponse.redirect(new URL("/sign-in", req.url));
+    return redirectToSignIn({ returnBackUrl: req.url });
+  }
+
+  // Catch users who do not have `onboardingComplete: true` in their publicMetadata
+  // Redirect them to the /onboarding route to complete onboarding
+  if (userId && !sessionClaims?.metadata?.onboardingComplete) {
+    const onboardingUrl = new URL("/onboarding", req.url);
+    return NextResponse.redirect(onboardingUrl);
+  }
+
+  // If the user is logged in and the route is protected, let them view
+  if (userId && !isPublicRoute(req)) {
+    return NextResponse.next();
   }
 
   return NextResponse.next();
