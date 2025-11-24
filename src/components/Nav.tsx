@@ -15,6 +15,7 @@ import {
   Menu,
   PlusCircle,
   ShoppingCart,
+  Telescope,
 } from "lucide-react";
 import Link from "next/link";
 import * as React from "react";
@@ -29,10 +30,10 @@ const Nav = () => {
         <Link
           href="/"
           className="flex gap-2 items-center text-xl font-bold justify-center hover:opacity-80 transition-opacity focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded-md"
-          aria-label="Grocery List Home"
+          aria-label="Whisk & List Home"
         >
           <Apple className="text-primary" size={28} aria-hidden="true" />
-          <span>Grocery List</span>
+          <span>Whisk & List</span>
         </Link>
 
         {/* Desktop Navigation */}
@@ -64,6 +65,15 @@ const Nav = () => {
             >
               <PlusCircle className="mr-2 h-4 w-4" aria-hidden="true" />
               Create Recipe
+            </Link>
+
+            <Link
+              href="/explore-recipes"
+              className={buttonVariants({ variant: "ghost" })}
+              aria-label="Create new recipe"
+            >
+              <Telescope className="mr-2 h-4 w-4" aria-hidden="true" />
+              Explore Recipes
             </Link>
 
             <div className="ml-2">
@@ -167,14 +177,27 @@ const Nav = () => {
                       </Link>
                     </SheetClose>
 
+                    <SheetClose asChild>
+                      <Link
+                        href="/explore-recipes"
+                        className="flex items-center py-3 px-4 rounded-lg hover:bg-accent transition-colors focus:outline-none focus:ring-2 focus:ring-primary"
+                      >
+                        <Telescope
+                          className="h-5 w-5 mr-3"
+                          aria-hidden="true"
+                        />
+                        <span className="text-base font-medium">
+                          Explore Recipes
+                        </span>
+                      </Link>
+                    </SheetClose>
+
                     <div className="border-t my-2"></div>
 
                     <SheetClose asChild>
                       <SignOutButton>
                         <button
-                          className={`${buttonVariants({
-                            variant: "outline",
-                          })} w-full justify-start`}
+                          className={`${buttonVariants({})} mx-3`}
                           aria-label="Sign out of your account"
                         >
                           Sign Out

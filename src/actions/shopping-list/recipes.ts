@@ -74,16 +74,27 @@ export async function addToShoppingList(
       activeList = newList;
     }
 
-    // 4. Check if recipe exists and belongs to user
+    // 4. Check if recipe exists and user has permission to view it
     const { data: recipe, error: recipeError } = await supabase
       .from("grocerylist_recipes")
-      .select("id, title")
+      .select("id, title, owner_id, visibility")
       .eq("id", recipeId)
-      .eq("owner_id", userId)
       .single();
 
     if (recipeError || !recipe) {
       return createErrorResponse("Recipe not found");
+    }
+
+    // Check visibility permissions
+    const isOwner = recipe.owner_id === userId;
+    const isPublic = recipe.visibility === "public";
+    // TODO: Add followers check when implemented
+    // const isFollower = recipe.visibility === "followers" && await checkIfFollowing(userId, recipe.owner_id);
+
+    if (!isOwner && !isPublic) {
+      return createErrorResponse(
+        "You don't have permission to add this recipe"
+      );
     }
 
     // 5. Check if recipe is already in the shopping list
@@ -108,6 +119,7 @@ export async function addToShoppingList(
 
       revalidatePath("/shopping-list");
       revalidatePath("/recipes");
+      revalidatePath("/explore-recipes");
 
       return createSuccessResponse(
         `Updated ${recipe.title} serving size in shopping list`
@@ -136,6 +148,7 @@ export async function addToShoppingList(
     // 7. Revalidate paths
     revalidatePath("/shopping-list");
     revalidatePath("/recipes");
+    revalidatePath("/explore-recipes");
 
     return createSuccessResponse(`Added ${recipe.title} to shopping list`, {
       menuRecipeId: menuRecipe.id,
@@ -190,6 +203,7 @@ export async function removeFromShoppingList(
     // 4. Revalidate paths
     revalidatePath("/shopping-list");
     revalidatePath("/recipes");
+    revalidatePath("/explore-recipes");
 
     return createSuccessResponse("Removed from shopping list");
   } catch (error) {

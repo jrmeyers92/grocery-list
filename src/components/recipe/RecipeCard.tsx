@@ -50,11 +50,13 @@ import { toast } from "sonner";
 interface RecipeCardProps {
   recipe: Recipe;
   isInShoppingList?: boolean;
+  isExploreMode?: boolean; // Add this
 }
 
 export default function RecipeCard({
   recipe,
   isInShoppingList = false,
+  isExploreMode = false,
 }: RecipeCardProps) {
   const router = useRouter();
   const [isAdding, setIsAdding] = useState(false);
@@ -290,40 +292,41 @@ export default function RecipeCard({
               </>
             )}
           </Button>
-
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="outline"
-                size="sm"
-                className="h-8 sm:h-9 w-8 sm:w-9 p-0"
-                onClick={(e) => e.preventDefault()}
-              >
-                <MoreVertical className="w-3 h-3 sm:w-4 sm:h-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem
-                onClick={(e) => {
-                  e.preventDefault();
-                  router.push(`/recipes/${recipe.id}/edit`);
-                }}
-              >
-                <Edit className="w-4 h-4 mr-2" />
-                Edit
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={(e) => {
-                  e.preventDefault();
-                  setShowDeleteDialog(true);
-                }}
-                className="text-red-600 focus:text-red-600"
-              >
-                <Trash2 className="w-4 h-4 mr-2" />
-                Delete
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          {!isExploreMode && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-8 sm:h-9 w-8 sm:w-9 p-0"
+                  onClick={(e) => e.preventDefault()}
+                >
+                  <MoreVertical className="w-3 h-3 sm:w-4 sm:h-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem
+                  onClick={(e) => {
+                    e.preventDefault();
+                    router.push(`/recipes/${recipe.id}/edit`);
+                  }}
+                >
+                  <Edit className="w-4 h-4 mr-2" />
+                  Edit
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setShowDeleteDialog(true);
+                  }}
+                  className="text-red-600 focus:text-red-600"
+                >
+                  <Trash2 className="w-4 h-4 mr-2" />
+                  Delete
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
         </CardFooter>
       </Card>
 

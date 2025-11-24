@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Grocery List",
+  title: "Whisk & List",
   description: "Recipe storage and grocery shopping list creation application",
 };
 

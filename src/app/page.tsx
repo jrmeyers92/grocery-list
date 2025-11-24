@@ -23,7 +23,7 @@ export default function Home() {
 
           <h1 className="text-4xl md:text-6xl font-bold tracking-tight">
             Your Recipes, One Smart
-            <span className="text-primary"> Grocery List</span>
+            <span className="text-primary"> Whisk & List</span>
           </h1>
 
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">

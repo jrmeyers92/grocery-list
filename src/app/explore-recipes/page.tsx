@@ -1,9 +1,9 @@
-import RecipesPageClient from "@/components/recipe/RecipePageClient";
+import ExploreRecipesPageClient from "@/components/exolore/ExploreRecipePageClient";
 import { createAdminClient } from "@/lib/supabase/clients/admin";
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 
-export default async function RecipesPage() {
+export default async function ExploreRecipesPage() {
   const { userId } = await auth();
 
   if (!userId) {
@@ -12,15 +12,16 @@ export default async function RecipesPage() {
 
   const supabase = await createAdminClient();
 
-  // Fetch all recipes for the current user
+  // Fetch all public recipes from OTHER users
   const { data: recipes, error } = await supabase
     .from("grocerylist_recipes")
     .select("*")
-    .eq("owner_id", userId)
+    .eq("visibility", "public")
+    .neq("owner_id", userId) // Exclude current user's recipes
     .order("created_at", { ascending: false });
 
   if (error) {
-    console.error("Error fetching recipes:", error);
+    console.error("Error fetching public recipes:", error);
   }
 
   // Fetch active shopping list and its recipes
@@ -44,7 +45,7 @@ export default async function RecipesPage() {
   );
 
   return (
-    <RecipesPageClient
+    <ExploreRecipesPageClient
       recipes={recipes || []}
       shoppingListRecipeIds={shoppingListRecipeIds}
     />
