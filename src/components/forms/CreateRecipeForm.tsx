@@ -37,6 +37,7 @@ import RecipeImporter from "../RecipeImporter";
 
 const INGREDIENT_UNITS = Constants.public.Enums.ingredient_units;
 const INGREDIENT_AISLES = Constants.public.Enums.ingredient_aisles;
+const RECIPE_VISIBILITY = Constants.public.Enums.recipe_visibility;
 
 export default function CreateRecipeForm() {
   const router = useRouter();
@@ -55,7 +56,7 @@ export default function CreateRecipeForm() {
       recipeImage: null,
       tags: [],
       is_favorite: false,
-      is_public: false, // Add this line
+      visibility: "private",
       ingredients: [
         { name_raw: "", quantity: 1, unit: "unit", aisle: "other", notes: "" },
       ],
@@ -354,24 +355,37 @@ export default function CreateRecipeForm() {
 
             <FormField
               control={form.control}
-              name="is_public"
+              name="visibility"
               render={({ field }) => (
-                <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
-                  <FormControl>
-                    <Checkbox
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                  </FormControl>
-                  <div className="space-y-1 leading-none">
-                    <FormLabel>Make Recipe Public</FormLabel>
-                    <FormDescription>
-                      Allow other users to discover and view this recipe
-                    </FormDescription>
-                  </div>
+                <FormItem>
+                  <FormLabel>Recipe Visibility</FormLabel>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select visibility" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {RECIPE_VISIBILITY.map((visibility) => (
+                        <SelectItem key={visibility} value={visibility}>
+                          {visibility.charAt(0).toUpperCase() +
+                            visibility.slice(1)}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormDescription>
+                    Private: Only you can see it | Followers: Your followers can
+                    see it | Public: Everyone can see it
+                  </FormDescription>
+                  <FormMessage />
                 </FormItem>
               )}
             />
+
             <FormField
               control={form.control}
               name="tags"

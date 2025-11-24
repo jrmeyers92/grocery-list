@@ -4,6 +4,7 @@ import { z } from "zod";
 
 const INGREDIENT_UNITS = Constants.public.Enums.ingredient_units;
 const INGREDIENT_AISLES = Constants.public.Enums.ingredient_aisles;
+const RECIPE_VISIBILITY = Constants.public.Enums.recipe_visibility;
 
 // Enums for validation - dynamically created from database types
 export const ingredientUnitSchema = z.enum(
@@ -12,6 +13,10 @@ export const ingredientUnitSchema = z.enum(
 
 export const ingredientAisleSchema = z.enum(
   INGREDIENT_AISLES as unknown as [string, ...string[]]
+);
+
+export const recipeVisibilitySchema = z.enum(
+  RECIPE_VISIBILITY as unknown as [string, ...string[]]
 );
 
 // Ingredient schema (for nested form)
@@ -39,7 +44,7 @@ export const createRecipeClientSchema = z.object({
   recipeImage: z.instanceof(File).nullable().optional(),
   tags: z.array(z.string()),
   is_favorite: z.boolean(),
-  is_public: z.boolean(),
+  visibility: recipeVisibilitySchema,
   ingredients: z
     .array(ingredientSchema)
     .min(1, "At least one ingredient is required"),

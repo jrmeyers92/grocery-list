@@ -40,11 +40,29 @@ export default async function page({ params }: RecipePageProps) {
     `
     )
     .eq("id", id)
-    .eq("owner_id", userId)
     .single();
 
   if (error || !recipe) {
     notFound();
+  }
+
+  // Check if the current user is the owner
+  const isOwner = recipe.owner_id === userId;
+
+  // If not the owner, check visibility permissions
+  if (!isOwner) {
+    // If recipe is private, only the owner can view it
+    if (recipe.visibility === "private") {
+      notFound();
+    }
+
+    // TODO: Add followers check when you implement the followers feature
+    // if (recipe.visibility === "followers") {
+    //   const isFollowing = await checkIfFollowing(userId, recipe.owner_id);
+    //   if (!isFollowing) {
+    //     notFound();
+    //   }
+    // }
   }
 
   // Sort ingredients and steps
@@ -65,9 +83,26 @@ export default async function page({ params }: RecipePageProps) {
     grocerylist_recipe_steps: steps,
   };
 
+  // Check if recipe is in shopping list (only for owner)
+  let isInShoppingList = false;
+  if (isOwner) {
+    const { data: shoppingListRecipe } = await supabase
+      .from("grocerylist_shopping_list_recipes")
+      .select("id")
+      .eq("recipe_id", id)
+      .eq("owner_id", userId)
+      .single();
+
+    isInShoppingList = !!shoppingListRecipe;
+  }
+
   return (
     <div className="container mx-auto py-8 px-4 max-w-5xl">
-      <RecipeHeader recipe={recipeData} />
+      <RecipeHeader
+        recipe={recipeData}
+        isOwner={isOwner}
+        isInShoppingList={isInShoppingList}
+      />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-8">
         <div className="lg:col-span-2 space-y-8">

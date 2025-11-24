@@ -5,9 +5,20 @@ import {
   addToShoppingList,
   removeFromShoppingList,
 } from "@/actions/shopping-list/recipes";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { RecipeWithIngredients } from "@/types/database.types";
-import { ArrowLeft, Check, Edit, Heart, Plus, Trash2 } from "lucide-react";
+import {
+  ArrowLeft,
+  Check,
+  Edit,
+  Globe,
+  Heart,
+  Lock,
+  Plus,
+  Trash2,
+  Users,
+} from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -16,11 +27,13 @@ import { toast } from "sonner";
 interface RecipeHeaderProps {
   recipe: RecipeWithIngredients;
   isInShoppingList?: boolean;
+  isOwner?: boolean;
 }
 
 export default function RecipeHeader({
   recipe,
   isInShoppingList = false,
+  isOwner = false,
 }: RecipeHeaderProps) {
   const router = useRouter();
   const [isDeleting, setIsDeleting] = useState(false);
@@ -115,6 +128,36 @@ export default function RecipeHeader({
     }
   };
 
+  const getVisibilityConfig = (visibility: string) => {
+    switch (visibility) {
+      case "public":
+        return {
+          icon: Globe,
+          label: "Public",
+          variant: "default" as const,
+          description: "Everyone can see this recipe",
+        };
+      case "followers":
+        return {
+          icon: Users,
+          label: "Followers Only",
+          variant: "secondary" as const,
+          description: "Only your followers can see this recipe",
+        };
+      case "private":
+      default:
+        return {
+          icon: Lock,
+          label: "Private",
+          variant: "outline" as const,
+          description: "Only you can see this recipe",
+        };
+    }
+  };
+
+  const visibilityConfig = getVisibilityConfig(recipe.visibility || "private");
+  const VisibilityIcon = visibilityConfig.icon;
+
   return (
     <div>
       <Button
@@ -139,10 +182,16 @@ export default function RecipeHeader({
 
       <div className="flex items-start justify-between gap-4 mb-4">
         <div className="flex-1">
-          <div className="flex items-center gap-3 mb-2">
+          <div className="flex items-center gap-3 mb-2 flex-wrap">
             <h1 className="text-3xl md:text-4xl font-bold">{recipe.title}</h1>
             {recipe.is_favorite && (
               <Heart className="w-6 h-6 text-red-500 fill-red-500" />
+            )}
+            {isOwner && (
+              <Badge variant={visibilityConfig.variant} className="gap-1">
+                <VisibilityIcon className="w-3 h-3" />
+                {visibilityConfig.label}
+              </Badge>
             )}
           </div>
           {recipe.description && (
@@ -152,23 +201,25 @@ export default function RecipeHeader({
           )}
         </div>
 
-        <div className="flex gap-2">
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={() => router.push(`/recipes/${recipe.id}/edit`)}
-          >
-            <Edit className="w-4 h-4" />
-          </Button>
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={handleDelete}
-            disabled={isDeleting}
-          >
-            <Trash2 className="w-4 h-4" />
-          </Button>
-        </div>
+        {isOwner && (
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => router.push(`/recipes/${recipe.id}/edit`)}
+            >
+              <Edit className="w-4 h-4" />
+            </Button>
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={handleDelete}
+              disabled={isDeleting}
+            >
+              <Trash2 className="w-4 h-4" />
+            </Button>
+          </div>
+        )}
       </div>
 
       <Button
