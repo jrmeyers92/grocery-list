@@ -55,14 +55,6 @@ export default async function page({ params }: RecipePageProps) {
     if (recipe.visibility === "private") {
       notFound();
     }
-
-    // TODO: Add followers check when you implement the followers feature
-    // if (recipe.visibility === "followers") {
-    //   const isFollowing = await checkIfFollowing(userId, recipe.owner_id);
-    //   if (!isFollowing) {
-    //     notFound();
-    //   }
-    // }
   }
 
   // Fetch creator information if not the owner

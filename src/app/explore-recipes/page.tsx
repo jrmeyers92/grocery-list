@@ -1,4 +1,4 @@
-import ExploreRecipesPageClient from "@/components/exolore/ExploreRecipePageClient";
+import ExploreRecipesPageClient from "@/components/explore/ExploreRecipePageClient";
 import { createAdminClient } from "@/lib/supabase/clients/admin";
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";

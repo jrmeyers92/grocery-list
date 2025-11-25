@@ -4,7 +4,15 @@ import RecipeCard from "@/components/recipe/RecipeCard";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   Sheet,
   SheetContent,
@@ -13,7 +21,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { Recipe } from "@/types/database.types";
-import { Filter, X } from "lucide-react";
+import { Filter, Search, X } from "lucide-react";
 import { useMemo, useState } from "react";
 
 interface ExploreRecipesPageClientProps {
@@ -21,11 +29,15 @@ interface ExploreRecipesPageClientProps {
   shoppingListRecipeIds: Set<string>;
 }
 
+type SortOption = "recent" | "alphabetical" | "popular";
+
 export default function ExploreRecipesPageClient({
   recipes,
   shoppingListRecipeIds,
 }: ExploreRecipesPageClientProps) {
+  const [searchTerm, setSearchTerm] = useState("");
   const [selectedTags, setSelectedTags] = useState<Set<string>>(new Set());
+  const [sortBy, setSortBy] = useState<SortOption>("recent");
   const [isFilterOpen, setIsFilterOpen] = useState(false);
 
   // Extract all unique tags from recipes
@@ -48,9 +60,25 @@ export default function ExploreRecipesPageClient({
     return counts;
   }, [recipes]);
 
-  // Filter recipes based on selected tags
+  // Filter and search recipes
   const filteredRecipes = useMemo(() => {
-    return recipes.filter((recipe) => {
+    const filtered = recipes.filter((recipe) => {
+      // Filter by search term
+      if (searchTerm) {
+        const searchLower = searchTerm.toLowerCase();
+        const titleMatch = recipe.title.toLowerCase().includes(searchLower);
+        const descMatch = recipe.description
+          ?.toLowerCase()
+          .includes(searchLower);
+        const tagMatch = recipe.tags?.some((tag) =>
+          tag.toLowerCase().includes(searchLower)
+        );
+
+        if (!titleMatch && !descMatch && !tagMatch) {
+          return false;
+        }
+      }
+
       // Filter by tags - recipe must have ALL selected tags
       if (selectedTags.size > 0) {
         const recipeTags = new Set(recipe.tags || []);
@@ -63,7 +91,33 @@ export default function ExploreRecipesPageClient({
 
       return true;
     });
-  }, [recipes, selectedTags]);
+
+    // Apply sorting
+    switch (sortBy) {
+      case "alphabetical":
+        filtered.sort((a, b) => a.title.localeCompare(b.title));
+        break;
+      case "popular":
+        // You could add a view_count or like_count field for this
+        // For now, just use recent as fallback
+        filtered.sort(
+          (a, b) =>
+            new Date(b.created_at || 0).getTime() -
+            new Date(a.created_at || 0).getTime()
+        );
+        break;
+      case "recent":
+      default:
+        filtered.sort(
+          (a, b) =>
+            new Date(b.created_at || 0).getTime() -
+            new Date(a.created_at || 0).getTime()
+        );
+        break;
+    }
+
+    return filtered;
+  }, [recipes, searchTerm, selectedTags, sortBy]);
 
   const toggleTag = (tag: string) => {
     setSelectedTags((prev) => {
@@ -78,10 +132,12 @@ export default function ExploreRecipesPageClient({
   };
 
   const clearFilters = () => {
+    setSearchTerm("");
     setSelectedTags(new Set());
+    setSortBy("recent");
   };
 
-  const hasActiveFilters = selectedTags.size > 0;
+  const hasActiveFilters = selectedTags.size > 0 || searchTerm.length > 0;
 
   // Filter Sidebar Component (reusable for both desktop and mobile)
   const FilterContent = () => (
@@ -98,6 +154,24 @@ export default function ExploreRecipesPageClient({
             Clear all
           </Button>
         )}
+      </div>
+
+      {/* Sort Options */}
+      <div className="space-y-3">
+        <h3 className="font-medium text-sm">Sort By</h3>
+        <Select
+          value={sortBy}
+          onValueChange={(v) => setSortBy(v as SortOption)}
+        >
+          <SelectTrigger>
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="recent">Most Recent</SelectItem>
+            <SelectItem value="alphabetical">Alphabetical</SelectItem>
+            <SelectItem value="popular">Most Popular</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
 
       {/* Tags Filter */}
@@ -140,6 +214,28 @@ export default function ExploreRecipesPageClient({
         </div>
       </div>
 
+      {/* Search Bar */}
+      <div className="mb-6">
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <Input
+            type="text"
+            placeholder="Search recipes by title, description, or tags..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="pl-9 pr-9"
+          />
+          {searchTerm && (
+            <button
+              onClick={() => setSearchTerm("")}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          )}
+        </div>
+      </div>
+
       {!recipes || recipes.length === 0 ? (
         <div className="text-center py-12">
           <h2 className="text-xl sm:text-2xl font-semibold mb-4">
@@ -170,7 +266,7 @@ export default function ExploreRecipesPageClient({
                       Filters
                       {hasActiveFilters && (
                         <span className="absolute -top-1 -right-1 w-5 h-5 bg-primary text-primary-foreground text-xs rounded-full flex items-center justify-center">
-                          {selectedTags.size}
+                          {selectedTags.size + (searchTerm ? 1 : 0)}
                         </span>
                       )}
                     </Button>
@@ -196,6 +292,15 @@ export default function ExploreRecipesPageClient({
                   <span className="text-xs sm:text-sm text-muted-foreground">
                     Active:
                   </span>
+                  {searchTerm && (
+                    <Badge variant="secondary" className="gap-1 text-xs">
+                      Search: {searchTerm}
+                      <X
+                        className="w-3 h-3 cursor-pointer"
+                        onClick={() => setSearchTerm("")}
+                      />
+                    </Badge>
+                  )}
                   {Array.from(selectedTags).map((tag) => (
                     <Badge
                       key={tag}
@@ -220,6 +325,15 @@ export default function ExploreRecipesPageClient({
                   <span className="text-sm text-muted-foreground">
                     Active filters:
                   </span>
+                  {searchTerm && (
+                    <Badge variant="secondary" className="gap-1">
+                      Search: {searchTerm}
+                      <X
+                        className="w-3 h-3 cursor-pointer"
+                        onClick={() => setSearchTerm("")}
+                      />
+                    </Badge>
+                  )}
                   {Array.from(selectedTags).map((tag) => (
                     <Badge key={tag} variant="secondary" className="gap-1">
                       {tag}
@@ -244,10 +358,10 @@ export default function ExploreRecipesPageClient({
                   No recipes match your filters
                 </h2>
                 <p className="text-muted-foreground mb-4 text-sm sm:text-base">
-                  Try adjusting your filters or clear them to see all recipes
+                  Try adjusting your search or filters to see more recipes
                 </p>
                 <Button variant="outline" onClick={clearFilters}>
-                  Clear Filters
+                  Clear All
                 </Button>
               </div>
             ) : (
