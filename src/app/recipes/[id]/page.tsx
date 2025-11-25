@@ -8,7 +8,7 @@ import type {
   RecipeWithIngredients,
   Step,
 } from "@/types/database.types";
-import { auth } from "@clerk/nextjs/server";
+import { auth, clerkClient } from "@clerk/nextjs/server";
 import { notFound, redirect } from "next/navigation";
 
 interface RecipePageProps {
@@ -65,6 +65,24 @@ export default async function page({ params }: RecipePageProps) {
     // }
   }
 
+  // Fetch creator information if not the owner
+  let creatorName: string | undefined;
+  let creatorUsername: string | undefined;
+
+  if (!isOwner && recipe.owner_id) {
+    try {
+      const client = await clerkClient();
+      const creator = await client.users.getUser(recipe.owner_id);
+      creatorName =
+        creator.firstName && creator.lastName
+          ? `${creator.firstName} ${creator.lastName}`
+          : undefined;
+      creatorUsername = creator.username || undefined;
+    } catch (error) {
+      console.error("Failed to fetch creator info:", error);
+    }
+  }
+
   // Sort ingredients and steps
   const ingredients =
     recipe.grocerylist_recipe_ingredients?.sort(
@@ -102,6 +120,8 @@ export default async function page({ params }: RecipePageProps) {
         recipe={recipeData}
         isOwner={isOwner}
         isInShoppingList={isInShoppingList}
+        creatorName={creatorName}
+        creatorUsername={creatorUsername}
       />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-8">

@@ -17,6 +17,7 @@ import {
   Lock,
   Plus,
   Trash2,
+  User,
   Users,
 } from "lucide-react";
 import Image from "next/image";
@@ -28,12 +29,16 @@ interface RecipeHeaderProps {
   recipe: RecipeWithIngredients;
   isInShoppingList?: boolean;
   isOwner?: boolean;
+  creatorName?: string;
+  creatorUsername?: string;
 }
 
 export default function RecipeHeader({
   recipe,
   isInShoppingList = false,
   isOwner = false,
+  creatorName,
+  creatorUsername,
 }: RecipeHeaderProps) {
   const router = useRouter();
   const [isDeleting, setIsDeleting] = useState(false);
@@ -194,6 +199,17 @@ export default function RecipeHeader({
               </Badge>
             )}
           </div>
+
+          {!isOwner && (creatorName || creatorUsername) && (
+            <button
+              onClick={() => router.push(`/recipes/user/${recipe.owner_id}`)}
+              className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors mb-2"
+            >
+              <User className="w-4 h-4" />
+              <span>by {creatorName || creatorUsername}</span>
+            </button>
+          )}
+
           {recipe.description && (
             <p className="text-muted-foreground text-lg">
               {recipe.description}

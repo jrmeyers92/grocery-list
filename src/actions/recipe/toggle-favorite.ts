@@ -29,7 +29,6 @@ export async function toggleFavorite(
       .from("grocerylist_recipes")
       .select("is_favorite")
       .eq("id", recipeId)
-      .eq("owner_id", userId)
       .single();
 
     if (fetchError || !recipe) {
